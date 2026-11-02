@@ -1,0 +1,314 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#4a1838">
+<title>[TEST] GK Orders</title><style>
+:root{--plum:#4a1838;--maroon:#7a1f2b;--gold:#c9a14a;--cream:#fbf4e6;--ink:#2b1a22;--mut:#7a6670;--line:#e5d6b5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--cream);color:var(--ink);font-size:15px;padding-bottom:76px}
+header{background:var(--plum);color:var(--cream);padding:8px 12px;display:flex;gap:10px;align-items:center;border-bottom:3px solid var(--gold);position:sticky;top:29px;z-index:20}
+header img{height:36px}header h1{font-size:17px;margin:0;color:var(--gold)}header small{display:block;font-size:11px;opacity:.85;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header .sp{flex:1}header button{background:transparent;border:1px solid var(--gold);color:var(--gold);min-height:36px;padding:4px 10px;font-size:13px}
+button{font:inherit;background:var(--maroon);color:#fff;border:0;border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer}button:disabled{opacity:.5}
+button.ghost{background:#fff;color:var(--maroon);border:1px solid var(--maroon)}button.gold{background:var(--gold);color:var(--plum);font-weight:700}
+input,select,textarea{font:inherit;font-size:16px;width:100%;padding:10px;border:1px solid var(--gold);border-radius:10px;background:#fff;color:var(--ink);min-height:44px}
+textarea{min-height:64px}label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+.wrap{padding:10px;max-width:720px;margin:auto}.hidden{display:none!important}.mock{background:#6a4c93;color:#fff;text-align:center;font-size:12px;padding:3px}
+.card{background:#fff;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;padding:10px 12px;margin:10px 0}
+.login{max-width:400px;margin:24px auto}.login h2{color:var(--maroon);margin:0 0 6px}.msg{font-size:13px;color:var(--mut);margin:8px 0}.err{color:#c62828}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.wrapr{flex-wrap:wrap}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}.chips button{flex:0 0 auto;background:#fff;color:var(--plum);border:1px solid var(--gold);border-radius:22px;min-height:40px;padding:6px 14px}
+.chips button.on{background:var(--plum);color:var(--gold);border-color:var(--plum)}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}.sum div{background:var(--plum);color:var(--cream);border-radius:10px;padding:6px;text-align:center;font-size:11px}.sum b{display:block;font-size:17px;color:var(--gold)}
+.oc{cursor:pointer}.oc .top{display:flex;justify-content:space-between;gap:6px;align-items:baseline}.ono{font-weight:800;color:var(--maroon)}.amt{font-weight:800;color:var(--plum);white-space:nowrap}
+.oc .nm{font-weight:700;font-size:16px}.meta{font-size:13px;color:var(--mut);margin-top:2px}.its{font-size:13px;margin-top:4px;white-space:pre-line}
+.chip{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:700;margin:4px 4px 0 0;background:#eee;color:#333}
+.s-New{background:#1565c0;color:#fff}.s-Confirmed{background:#6a1b9a;color:#fff}.s-In{background:#ef6c00;color:#fff}.s-Ready{background:#2e7d32;color:#fff}.s-Out{background:#00838f;color:#fff}.s-Delivered{background:#9e9e9e;color:#fff}.s-Cancelled{background:#c62828;color:#fff}
+.p-Pending{background:#fff3cd;color:#8a6d00}.p-Paid{background:#d6f5d6;color:#1b5e20}.p-Partially{background:#ffe0b2;color:#8a4b00}.tbc{background:#fde2e2;color:#a01010}.src{background:#f3e8db;color:var(--plum)}
+.links{display:flex;gap:8px;margin-top:8px}.links a{flex:1;text-align:center;text-decoration:none;border-radius:10px;padding:10px;min-height:44px;font-weight:700}
+.call{background:var(--plum);color:var(--gold)}.wa{background:#25d366;color:#053}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--plum);display:grid;grid-template-columns:repeat(4,1fr);border-top:3px solid var(--gold);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{background:transparent;color:var(--cream);border-radius:0;min-height:60px;font-size:12px;padding:4px}nav.tabs button b{display:block;font-size:20px}nav.tabs button.on{color:var(--gold);background:#5c2348}
+.sheet{position:fixed;inset:0;background:var(--cream);z-index:40;overflow-y:auto;padding-bottom:30px}
+.sheet .bar{position:sticky;top:0;background:var(--plum);color:var(--gold);display:flex;align-items:center;gap:8px;padding:8px;z-index:2}.sheet .bar button{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}th,td{border:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}th{background:var(--plum);color:var(--cream);font-weight:600}td.n{text-align:right;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stbtn{background:#fff;color:var(--plum);border:1px solid var(--gold);font-size:14px;padding:8px 4px}.stbtn.on{background:var(--plum);color:var(--gold)}
+h3{color:var(--maroon);margin:14px 0 6px;font-size:16px}
+.pick{max-height:280px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;background:#fff}.pick button{display:flex;justify-content:space-between;width:100%;background:#fff;color:var(--ink);border-bottom:1px solid var(--line);border-radius:0;text-align:left}
+.pick button span{color:var(--mut);font-size:13px}.cfg{background:#fff;border:2px solid var(--plum);border-radius:12px;padding:10px;margin-top:8px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{flex:1 0 auto;background:#fff;color:var(--plum);border:1px solid var(--gold);padding:8px}.seg button.on{background:var(--plum);color:var(--gold)}
+.cart .l{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:6px 0}.cart .l div{flex:1}.cart .l button{min-height:40px;padding:6px 10px;background:#fff;color:#c62828;border:1px solid #c62828}
+.tot{background:var(--plum);color:var(--cream);border-radius:12px;padding:10px;margin-top:8px}.tot div{display:flex;justify-content:space-between}.tot .g{color:var(--gold);font-size:19px;font-weight:800}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:#222;color:#fff;padding:10px 16px;border-radius:20px;z-index:60;font-size:14px;max-width:90vw}
+.grp{margin-top:12px}.grp h3{border-bottom:2px solid var(--gold);padding-bottom:3px}.dl{font-size:14px;border-bottom:1px dashed var(--line);padding:6px 0}
+.printbtn{width:100%;margin-top:8px}.ph{display:none}
+@media (max-width:360px){body{font-size:14px}.sum b{font-size:15px}.grid3{grid-template-columns:1fr 1fr}}
+@media print{header,nav.tabs,.noprint,.mock,.toast,#ordersView,#newView,.sheet{display:none!important}body{background:#fff;padding:0;font-size:12px}.card{border:0;padding:0}.ph{display:block}table{font-size:12px}th{background:#ddd!important;color:#000}.sum div{background:#fff;color:#000;border:1px solid #999}.sum b{color:#000}}
+</style></head><body>
+<div id="mockbar" class="mock hidden">DEMO MODE – fake data, nothing is saved</div>
+<div id="testbar" style="position:sticky;top:0;z-index:9999;background:#c62828;color:#fff;text-align:center;font:700 13px/1.3 system-ui,sans-serif;padding:6px 8px;letter-spacing:.3px">TEST ENVIRONMENT – orders go to the test sheet</div>
+<header><img src="logo.webp" alt="GK"><div><h1>GK Orders <span style="background:#c62828;color:#fff;font-size:.6em;padding:1px 6px;border-radius:4px;vertical-align:middle">TEST</span></h1><small id="whoami">House of Seerbakshanam GK</small></div><span class="sp"></span><button id="lo" class="hidden">Log out</button></header>
+
+<section id="login" class="wrap login"><div class="card">
+ <h2>Staff log in</h2>
+ <div id="s1"><label for="em">Email</label><input type="email" id="em" autocomplete="email" placeholder="you@example.com"><button id="send" style="width:100%;margin-top:10px">Send code</button></div>
+ <div id="s2" class="hidden"><label for="code">6-digit code from your email</label><input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"><button id="ver" style="width:100%;margin-top:10px">Verify</button><p class="msg"><a href="#" id="back">Different email / resend</a></p></div>
+ <div id="s3" class="hidden"><p class="msg">New staff? Ask the owner. You will get an email once approved, then log in with your email code.</p>
+  <label for="raEm">Your email</label><input type="email" id="raEm" maxlength="254" autocomplete="email"><label for="raName">Your name</label><input id="raName" maxlength="80" autocomplete="name">
+  <label for="raNote">Note (optional)</label><textarea id="raNote" maxlength="300" placeholder="e.g. Counter, Guruvayur outlet"></textarea><button id="raSend" style="width:100%;margin-top:10px">Send request</button><p class="msg"><a href="#" id="raBack">Back to log in</a></p></div>
+ <button id="raOpen" class="ghost" style="width:100%;margin-top:10px">Request access</button>
+ <p class="msg" id="lmsg"></p></div></section>
+
+<main id="app" class="hidden">
+ <section id="ordersView" class="wrap">
+  <div class="chips" id="rng"></div>
+  <div class="sum" id="osum"></div>
+  <input type="search" id="q" placeholder="Search name, phone, order no…" aria-label="Search">
+  <div class="chips" style="margin-top:6px"><button id="ftog">Filters ▾</button><button id="reload">↻ Refresh</button></div>
+  <div id="filters" class="grid2 hidden"><select id="fStatus" aria-label="Status"></select><select id="fSource" aria-label="Source"></select><select id="fBranch" aria-label="Branch"><option value="">All branches</option><option>Coimbatore</option><option>Chennai</option></select><select id="fPay" aria-label="Payment"></select></div>
+  <div id="olist"></div>
+ </section>
+ <section id="newView" class="wrap hidden">
+  <div class="card">
+   <h3 style="margin-top:0">New order</h3>
+   <div class="grid2"><div><label for="nName">Customer name</label><input id="nName" maxlength="80" autocomplete="off"></div><div><label for="nPhone">Mobile</label><input id="nPhone" type="tel" inputmode="tel" maxlength="16" placeholder="98xxxxxxxx"></div></div>
+   <label>Source</label><div class="seg" id="nSource"></div>
+   <label>Branch</label><div class="seg" id="nBranch"></div>
+   <label>Order type</label><div class="seg" id="nType"></div>
+   <div id="pickupBox"><label for="nOutlet">Pickup outlet</label><select id="nOutlet"></select></div>
+   <div id="delBox" class="hidden"><label for="nAddr">Address</label><textarea id="nAddr" maxlength="300"></textarea><div class="grid2"><div><label for="nArea">Area</label><input id="nArea" maxlength="80"></div><div><label for="nPin">PIN</label><input id="nPin" inputmode="numeric" maxlength="6"></div></div></div>
+   <div class="grid2"><div><label for="nDate">Delivery / pickup date</label><input id="nDate" type="date"></div><div><label for="nSlot">Time slot (optional)</label><input id="nSlot" maxlength="30" placeholder="e.g. 5–6 PM"></div></div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Items <small id="rateNote" class="msg"></small></h3>
+   <input type="search" id="iq" placeholder="Search item… (e.g. mysurpa)" aria-label="Search item" autocomplete="off"><div class="pick" id="pick"></div><div id="cfg"></div>
+   <div class="cart" id="cart"></div><div class="tot" id="tot"></div></div>
+  <div class="card"><label for="nNotes">Notes (customer)</label><textarea id="nNotes" maxlength="500"></textarea><div class="grid2"><div><label for="nSales">Salesperson</label><input id="nSales" maxlength="40"></div><div><label for="nStatus">Start as</label><select id="nStatus"><option>New</option><option>Confirmed</option></select></div></div>
+   <button id="nSave" class="gold" style="width:100%;margin-top:12px;font-size:17px">Save order</button><p class="msg" id="nMsg"></p></div>
+ </section>
+ <section id="prodView" class="wrap hidden">
+  <div class="card noprint"><div class="grid2"><div><label for="pDate">Date</label><input type="date" id="pDate"></div><div><label for="pBranch">Branch</label><select id="pBranch"><option value="">Both</option><option>Coimbatore</option><option>Chennai</option></select></div></div></div>
+  <div class="ph"><b>House of Seerbakshanam GK – Production</b></div>
+  <div class="sum" id="psum"></div><div class="card" id="ptable"></div><button class="printbtn noprint" id="pPrint">🖨 Print production list</button>
+ </section>
+ <section id="delView" class="wrap hidden">
+  <div class="card noprint"><div class="grid2"><div><label for="dDate">Date</label><input type="date" id="dDate"></div><div><label for="dBranch">Branch</label><select id="dBranch"><option value="">Both</option><option>Coimbatore</option><option>Chennai</option></select></div></div></div>
+  <div class="ph"><b>House of Seerbakshanam GK – Deliveries &amp; pickups</b></div>
+  <div class="sum" id="dsum"></div><div id="dlist"></div><button class="printbtn noprint" id="dPrint">🖨 Print delivery list</button>
+ </section>
+</main>
+<div id="detail" class="sheet hidden"></div>
+<nav class="tabs hidden" id="tabs"><button data-v="ordersView" class="on"><b>📋</b>Orders</button><button data-v="newView"><b>➕</b>New</button><button data-v="prodView"><b>🍬</b>Production</button><button data-v="delView"><b>🛵</b>Deliveries</button></nav>
+<script>
+/* ===== CONFIG: paste the GK Order App API web-app /exec URL here after deploying ===== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbyECX8GD4mkJdHnKKsUX6mT1J9175WjKQZeh1gw-WwRRQH6J70J-KxrgCcxnDIJsxC5/exec';
+/* ===================================================================================== */
+const MOCK=new URLSearchParams(location.search).get("mock")==="1";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inr=x=>"₹"+Math.round(x).toLocaleString("en-IN"),inr2=x=>"₹"+(Math.round(x*100)/100).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const r2=x=>Math.round(x*100)/100,wl=g=>g>=1000?(g/1000)+" kg":g+" g";
+const addDays=(ymd,n)=>{const d=new Date(ymd+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const fmtD=ymd=>ymd?new Date(ymd+"T00:00:00Z").toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}):"no date";
+const SK="gk_orders_session";let S=JSON.parse(sessionStorage.getItem(SK)||"null"),INIT=null,ORD=[],expT;
+const toast=t=>{const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2600)};
+
+/* ---------- pricing (same rules as the website + API) ---------- */
+const rateFor=(p,branch)=>branch==="Chennai"?Math.round(p*1.10):p;
+function priceLine(l,branch){const it=INIT.menu.find(m=>m.n===l.name);if(!it)return null;const q=Math.max(1,Math.floor(+l.qty||1));
+ if(it.u==="kg"){if(l.mode==="pc")return{name:it.n,desc:q+" pcs (price TBC)",unit:"pcs (price TBC)",qty:q,rate:0,raw:0,amount:0,tbc:true};const r=rateFor(it.p,branch),raw=r*l.grams/1000*q;return{name:it.n,desc:wl(l.grams)+(q>1?" × "+q:""),unit:wl(l.grams),qty:q,rate:r,raw,amount:Math.round(raw)}}
+ let nm=it.n,p=it.p;if(it.v){const v=it.v.find(x=>x[0]===l.size);nm=it.n+" – "+v[0];p=v[1]}const r=rateFor(p,branch);return{name:nm,desc:q+" "+it.u+(q>1?"s":""),unit:it.u,qty:q,rate:r,raw:r*q,amount:Math.round(r*q)}}
+const totals=raw=>{const t=Math.round(raw),b=r2(t/1.05);return{total:t,subtotal:b,gst:r2(t-b)}};
+const gramsOf=u=>{const m=/^(\d+(?:\.\d+)?)\s?(g|kg)$/i.exec(String(u).trim());return m?+m[1]*(m[2].toLowerCase()==="kg"?1000:1):null};
+function aggregate(orders,date,branch){const map={},act=orders.filter(o=>o.date===date&&o.status!=="Cancelled"&&(!branch||o.branch===branch));
+ act.forEach(o=>o.lines.forEach(l=>{const g=gramsOf(l.unit),kind=g!==null?"kg":l.tbc?"pcs (TBC)":(l.unit||"pcs").replace(/\s*\(price TBC\)/i,"");const k=l.item+"|"+kind,x=map[k]||(map[k]={item:l.item,unit:kind,grams:0,qty:0,orders:[]});
+  if(g!==null)x.grams+=g*(l.qty||1);else x.qty+=l.qty||1;if(!x.orders.includes(o.no))x.orders.push(o.no)}));
+ const rows=Object.values(map).map(x=>{if(x.unit==="kg")x.kg=r2(x.grams/1000);return x});rows.sort((a,b)=>a.item<b.item?-1:a.item>b.item?1:(a.unit<b.unit?-1:1));return{date,orders:act.length,rows}}
+
+/* ---------- mock API (?mock=1) ---------- */
+function mockApi(){const ALLOW=["demo@example.com","staff@example.com","pravin@enmac.in"];const today=new Date(Date.now()+5.5*36e5).toISOString().slice(0,10);
+ const menu=[{n:"Mysurpa",c:"Sweets",u:"kg",p:900},{n:"Adirasam",c:"Sweets",u:"kg",p:880,sm:1},{n:"Badusha",c:"Sweets",u:"kg",p:880,sm:1},{n:"Kaju Katli",c:"Sweets",u:"kg",p:1400},{n:"Boondi Laddu",c:"Sweets",u:"kg",p:880},
+  {n:"Muruku",c:"Savouries",u:"kg",p:700,s:"2/3/4/5/7/9/11 lines"},{n:"Mixture",c:"Savouries",u:"kg",p:680},{n:"Ribbon Pakoda",c:"Savouries",u:"kg",p:680},
+  {n:"Manoharam Parupu Thengai",c:"Kudu",u:"piece",v:[["1 ft",1500],["Medium",1300],["Small",1000]]},{n:"Mysurpak Parupu Kudu",c:"Kudu",u:"piece",v:[["Big",2000],["Small",1100]]},
+  {n:"Boli",c:"Round Sweets",u:"piece",p:30},{n:"Thambulam Set",c:"Sweets",u:"set",p:1000},{n:"Fruit Set",c:"Sweets",u:"plate",p:4500}];
+ const db={otp:null,tok:null,role:"owner",cbe:3,chn:1,orders:[]};
+ const mk=(no,branch,off,name,phone,src,status,pay,lines,x)=>{const o={no,branch,time:Date.now()-off*0-3600e3*(5+db.orders.length),name,phone,type:x&&x.del?"Home delivery":"Pickup from outlet",delivery:!!(x&&x.del),
+   address:x&&x.del?x.del:"Sivananda Colony, Coimbatore",date:addDays(today,off),notes:x&&x.notes||"",status,payment:pay,assignedTo:"",confirmedBy:"",city:x&&x.del?(branch==="Chennai"?"Chennai":"Coimbatore"):"",
+   salesperson:x&&x.sp||"",source:src,paymentMode:pay==="Paid"?"UPI":"",amountReceived:null,handledBy:"",internalNote:"",slot:x&&x.slot||"",area:x&&x.area||"",pin:x&&x.pin||"",lines};recalc(o);db.orders.push(o)};
+ const L=(item,unit,qty,price,amount)=>({item,unit,qty,price,amount,tbc:/tbc/i.test(unit)&&!amount});
+ function recalc(o){o.tbc=o.lines.filter(l=>l.tbc).length;const t=totals(o.lines.reduce((a,l)=>a+l.amount,0));Object.assign(o,t);o.itemsText=o.lines.map(l=>l.item+" – "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?" × "+l.qty:""):l.qty+" "+l.unit)+" – ₹"+l.amount).join("\n")}
+ mk("GK-0101","Coimbatore",0,"Meena Raghavan","9876543210","Website","New","Pending",[L("Mysurpa","500 g",1,900,450),L("Mixture","1 kg",1,680,680)],{del:"12 Main St, RS Puram, Coimbatore – 641002",area:"RS Puram",pin:"641002"});
+ mk("GK-0102","Coimbatore",0,"Arun Kumar","9443012345","WhatsApp","Confirmed","Paid",[L("Kaju Katli","1 kg",2,1400,2800),L("Badusha","pcs (price TBC)",10,0,0)],{sp:"Ravi",slot:"5–6 PM",notes:"Gift pack please"});
+ mk("GK-0103","Coimbatore",0,"Shanthi","9003011122","Phone","In Production","Partially Paid",[L("Manoharam Parupu Thengai – Medium","piece",2,1300,2600)],{del:"45 Avinashi Rd, Peelamedu, Coimbatore – 641004",area:"Peelamedu",pin:"641004"});
+ mk("CH-0001","Chennai",0,"Karthik S","9840012345","Website","Confirmed","Pending",[L("Mysurpa","1 kg",1,990,990),L("Muruku","500 g",1,770,385)],{del:"4 Beach Rd, Adyar, Chennai – 600020",area:"Adyar",pin:"600020"});
+ mk("GK-0104","Coimbatore",1,"Priya N","9791234567","Walk-in","New","Pending",[L("Boondi Laddu","250 g",4,880,880),L("Boli","piece",20,30,600)],{});
+ mk("GK-0105","Coimbatore",1,"Lakshmi","9843098430","WhatsApp","Ready","Paid",[L("Mysurpa","500 g",2,900,900)],{del:"7 Race Course, Coimbatore – 641018",area:"Race Course",pin:"641018"});
+ mk("GK-0100","Coimbatore",0,"Old Cancel","9000000000","Phone","Cancelled","Pending",[L("Mysurpa","1 kg",1,900,900)],{});
+ mk("GK-0106","Coimbatore",4,"Ganesh","9600557000","Other","New","Pending",[L("Thambulam Set","set",3,1000,3000)],{});
+ db.recalc=recalc;
+ return async o=>{await new Promise(r=>setTimeout(r,120));const au=()=>o.token&&o.token===db.tok;const E=e=>({ok:false,error:e});
+  switch(o.action){
+   case"requestOtp":if(ALLOW.includes(String(o.email).trim().toLowerCase()))db.otp="123456";return{ok:true,message:"If this email is allowed, a login code has been sent. It expires in 10 minutes. (Demo code: 123456)"};
+   case"verifyOtp":if(db.otp&&o.code===db.otp){db.otp=null;db.tok="mock"+Math.random();db.email=o.email.toLowerCase();db.role=db.email.startsWith("staff")?"staff":"owner";return{ok:true,token:db.tok,email:db.email,role:db.role,expiresAt:Date.now()+8*36e5}}return E("invalid_or_expired_code");
+   case"requestAccess":if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(o.email||"")))return E("bad_email");if(!String(o.name||"").trim())return E("name_required");return{ok:true,message:"Thank you. If this request can be accepted, the owner will review it and you will get an email once approved."};
+   case"logout":db.tok=null;return{ok:true}}
+  if(!au())return E("auth_required");
+  switch(o.action){
+   case"init":return{ok:true,email:db.email,role:db.role,today,menu,outlets:["Sivananda Colony, Coimbatore","Guruvayur"],statuses:["New","Confirmed","In Production","Ready","Out for Delivery","Delivered","Cancelled"],payments:["Pending","Paid","Partially Paid"],payModes:["Cash","UPI","Card","Bank transfer","Other"],sources:["WhatsApp","Phone","Walk-in","Other","Website"],gstRate:5,chennaiMult:1.1};
+   case"listOrders":return{ok:true,today,orders:JSON.parse(JSON.stringify(db.orders)).sort((a,b)=>b.time-a.time)};
+   case"production":return{ok:true,...aggregate(db.orders,o.date,o.branch||null)};
+   case"createOrder":{if(!String(o.name||"").trim())return E("name_required");if(!/^\+?\d{10,13}$/.test(String(o.phone||"").replace(/[^\d+]/g,"")))return E("bad_phone");if(!o.lines||!o.lines.length)return E("no_items");
+    if(o.branch==="Chennai"&&o.type!=="delivery")return E("chennai_delivery_only");if(o.type==="delivery"&&!String(o.address||"").trim())return E("address_required");if(!/^\d{4}-\d{2}-\d{2}$/.test(o.date||""))return E("bad_date");
+    const ls=o.lines.map(l=>priceLine(l,o.branch));const tt=totals(ls.reduce((a,l)=>a+l.raw,0));const ch=o.branch==="Chennai";const no=ch?"CH-"+String(++db.chn).padStart(4,"0"):"GK-"+String(100+(++db.cbe)).padStart(4,"0");
+    const ord={no,branch:o.branch,time:Date.now(),name:o.name,phone:o.phone.replace(/[^\d+]/g,""),type:o.type==="delivery"?"Home delivery":"Pickup from outlet",delivery:o.type==="delivery",address:o.type==="delivery"?[o.address,o.area,(o.branch==="Chennai"?"Chennai":"Coimbatore")+(o.pin?" – "+o.pin:"")].filter(Boolean).join(", "):o.outlet,
+     date:o.date,notes:o.notes||"",status:o.status||"New",payment:"Pending",assignedTo:"",confirmedBy:"",city:"",salesperson:o.salesperson||"",source:o.source,paymentMode:"",amountReceived:null,handledBy:db.email,internalNote:"",slot:o.slot||"",area:o.area||"",pin:o.pin||"",
+     lines:ls.map(l=>({item:l.name,unit:l.unit,qty:l.qty,price:l.rate,amount:l.amount,tbc:!!l.tbc}))};recalc(ord);db.orders.push(ord);return{ok:true,orderNo:no,...tt,tbc:ord.tbc}}
+   case"updateOrder":{const x=db.orders.find(z=>z.no===o.orderNo);if(!x)return E("not_found");const ch=[];const map={status:"status",payment:"payment",paymentMode:"paymentMode",amountReceived:"amountReceived",internalNote:"internalNote",assignedTo:"assignedTo"};
+    for(const k in map)if(o[k]!==undefined){let v=o[k];if(k==="payment"&&/^partial/i.test(v))v="Partially Paid";if(String(x[map[k]]??"")!==String(v??"")){x[map[k]]=v;ch.push(k)}}x.handledBy=db.email;return{ok:true,changed:ch}}
+   case"fillPrice":{const x=db.orders.find(z=>z.no===o.orderNo);if(!x)return E("not_found");const l=x.lines[o.line];if(!l||!l.tbc)return E("line_not_tbc");if(!(+o.amount>0))return E("bad_amount");
+    l.unit=l.unit.replace(/\s*\(price TBC\)/i,"")+(o.weight?" ("+o.weight+")":"");l.amount=Math.round(+o.amount);l.price=r2(o.amount/l.qty);l.tbc=false;recalc(x);return{ok:true,total:x.total,subtotal:x.subtotal,gst:x.gst,tbc:x.tbc}}}
+  return E("unknown_action")}}
+const mock=MOCK?mockApi():null;
+async function api(o){if(mock)return mock(o);if(!API_URL)return{ok:false,error:"API_URL not configured"};
+ try{const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(o),redirect:"follow"});return await r.json()}catch(e){return{ok:false,error:"network_error"}}}
+async function authApi(o){const r=await api({...o,token:S&&S.token});if(r.error==="auth_required")logout(true,"Session expired – please log in again.");return r}
+if(MOCK)$("#mockbar").classList.remove("hidden");
+
+/* ---------- login ---------- */
+const lmsg=(t,e)=>{$("#lmsg").textContent=t;$("#lmsg").className="msg"+(e?" err":"")};
+const show=id=>["#s1","#s2","#s3"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+const okEmail=e=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+$("#send").onclick=async()=>{const em=$("#em").value.trim();if(!okEmail(em))return lmsg("Enter a valid email.",1);$("#send").disabled=true;lmsg("Sending…");const r=await api({action:"requestOtp",email:em});$("#send").disabled=false;
+ if(!r.ok)return lmsg("Could not send: "+r.error,1);lmsg(r.message);show("#s2");$("#raOpen").classList.add("hidden");$("#code").focus()};
+$("#back").onclick=e=>{e.preventDefault();show("#s1");$("#raOpen").classList.remove("hidden");lmsg("")};
+$("#ver").onclick=async()=>{const c=$("#code").value.replace(/\D/g,"");if(c.length!==6)return lmsg("Enter the 6-digit code.",1);$("#ver").disabled=true;const r=await api({action:"verifyOtp",email:$("#em").value.trim(),code:c});$("#ver").disabled=false;
+ if(!r.ok)return lmsg("Code is wrong or expired. After 5 wrong tries request a new code.",1);S={token:r.token,email:r.email,role:r.role,exp:r.expiresAt};sessionStorage.setItem(SK,JSON.stringify(S));$("#code").value="";start()};
+$("#code").addEventListener("keydown",e=>{if(e.key==="Enter")$("#ver").click()});$("#em").addEventListener("keydown",e=>{if(e.key==="Enter")$("#send").click()});
+$("#raOpen").onclick=()=>{show("#s3");$("#raOpen").classList.add("hidden");$("#raEm").value=$("#em").value;lmsg("")};
+$("#raBack").onclick=e=>{e.preventDefault();show("#s1");$("#raOpen").classList.remove("hidden");lmsg("")};
+$("#raSend").onclick=async()=>{const em=$("#raEm").value.trim(),nm=$("#raName").value.trim();if(!okEmail(em))return lmsg("Enter a valid email.",1);if(!nm)return lmsg("Enter your name.",1);
+ $("#raSend").disabled=true;lmsg("Sending…");const r=await api({action:"requestAccess",email:em,name:nm,note:$("#raNote").value.trim()});$("#raSend").disabled=false;if(!r.ok)return lmsg("Could not send: "+r.error,1);
+ $("#raNote").value="";show("#s1");$("#raOpen").classList.remove("hidden");lmsg(r.message)};
+function logout(local,msg){if(!local&&S)api({action:"logout",token:S.token});S=null;INIT=null;ORD=[];sessionStorage.removeItem(SK);clearTimeout(expT);
+ ["#app","#tabs","#lo","#detail"].forEach(s=>$(s).classList.add("hidden"));$("#olist").innerHTML="";$("#login").classList.remove("hidden");show("#s1");$("#raOpen").classList.remove("hidden");$("#whoami").textContent="House of Seerbakshanam GK";lmsg(msg||"Logged out.")}
+$("#lo").onclick=()=>logout(false);
+async function start(){if(!S||Date.now()>S.exp)return logout(true,S?"Session expired – please log in again.":"");lmsg("Loading…");const r=await authApi({action:"init"});if(!r.ok){if(S)lmsg("Could not load: "+r.error,1);return}
+ INIT=r;$("#login").classList.add("hidden");["#app","#tabs","#lo"].forEach(s=>$(s).classList.remove("hidden"));$("#whoami").textContent=r.email+" · "+r.role;
+ clearTimeout(expT);expT=setTimeout(()=>logout(false,"Session expired (8 h) – please log in again."),Math.max(0,S.exp-Date.now()));
+ setupFilters();setupNew();$("#pDate").value=$("#dDate").value=r.today;await load()}
+async function load(){const r=await authApi({action:"listOrders"});if(!r.ok)return toast("Could not load orders: "+r.error);ORD=r.orders;INIT.today=r.today||INIT.today;renderList();if(!$("#prodView").classList.contains("hidden"))renderProd();if(!$("#delView").classList.contains("hidden"))renderDel()}
+
+/* ---------- navigation ---------- */
+$$("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+function go(v){$$("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));["ordersView","newView","prodView","delView"].forEach(x=>$("#"+x).classList.toggle("hidden",x!==v));
+ if(v==="prodView")renderProd();if(v==="delView")renderDel();window.scrollTo(0,0)}
+
+/* ---------- orders list ---------- */
+let RANGE="today";const RANGES=[["today","Today"],["tomorrow","Tomorrow"],["week","Next 7 days"],["all","All"]];
+function setupFilters(){$("#rng").innerHTML=RANGES.map(([k,t])=>`<button data-r="${k}" class="${k===RANGE?"on":""}">${t}</button>`).join("");
+ $("#fStatus").innerHTML='<option value="">All statuses</option><option value="active">Active (not delivered/cancelled)</option>'+INIT.statuses.map(s=>`<option>${esc(s)}</option>`).join("");
+ $("#fSource").innerHTML='<option value="">All sources</option>'+INIT.sources.map(s=>`<option>${esc(s)}</option>`).join("");
+ $("#fPay").innerHTML='<option value="">All payments</option>'+INIT.payments.map(s=>`<option>${esc(s)}</option>`).join("")}
+$("#rng").onclick=e=>{const b=e.target.closest("button");if(!b)return;RANGE=b.dataset.r;$$("#rng button").forEach(x=>x.classList.toggle("on",x===b));renderList()};
+$("#ftog").onclick=()=>$("#filters").classList.toggle("hidden");$("#reload").onclick=()=>load();
+["#q","#fStatus","#fSource","#fBranch","#fPay"].forEach(s=>$(s).addEventListener("input",()=>renderList()));
+function inRange(o){const t=INIT.today;if(RANGE==="all")return true;if(RANGE==="today")return o.date===t;if(RANGE==="tomorrow")return o.date===addDays(t,1);return o.date>=t&&o.date<=addDays(t,6)}
+function filtered(){const q=$("#q").value.trim().toLowerCase(),qd=q.replace(/\D/g,""),fs=$("#fStatus").value,fo=$("#fSource").value,fb=$("#fBranch").value,fp=$("#fPay").value;
+ return ORD.filter(o=>inRange(o)&&(!fs||(fs==="active"?!["Delivered","Cancelled"].includes(o.status):o.status===fs))&&(!fo||o.source===fo)&&(!fb||o.branch===fb)&&(!fp||o.payment===fp)&&
+  (!q||o.name.toLowerCase().includes(q)||o.no.toLowerCase().includes(q)||(qd.length>=3&&o.phone.replace(/\D/g,"").includes(qd))))
+  .sort((a,b)=>RANGE==="all"?(b.time||0)-(a.time||0):(a.date+(a.slot||"")).localeCompare(b.date+(b.slot||"")))}
+const sCls=s=>"s-"+String(s).split(" ")[0],pCls=p=>"p-"+String(p).split(" ")[0];
+const waNum=p=>{const d=String(p).replace(/\D/g,"");return d.length===10?"91"+d:d};
+const totTxt=o=>o.lines.length&&o.tbc===o.lines.length?"Price TBC":inr(o.total)+(o.tbc?" + TBC":"");
+function sumBox(list){const act=list.filter(o=>o.status!=="Cancelled");return[["Orders",act.length],["Value",inr(act.reduce((a,o)=>a+o.total,0))],["Pay pending",act.filter(o=>o.payment!=="Paid").length],["Price TBC",act.filter(o=>o.tbc).length]].map(([a,b])=>`<div><b>${b}</b>${a}</div>`).join("")}
+function card(o){return `<div class="card oc" data-o="${esc(o.no)}"><div class="top"><span class="ono">${esc(o.no)}</span><span class="amt">${totTxt(o)}<small style="font-weight:400;color:var(--mut)">${o.tbc===o.lines.length&&o.lines.length?"":" incl. GST"}</small></span></div>
+ <div class="nm">${esc(o.name)}</div><div class="meta">📞 ${esc(o.phone)} · ${o.delivery?"🛵 Delivery":"🏬 Pickup"} · ${fmtD(o.date)}${o.slot?" · "+esc(o.slot):""}</div>
+ <div class="meta">${o.delivery?"📍 ":"🏬 "}${esc(o.address)}</div><div class="its">${esc(o.lines.map(l=>l.item+" · "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?" × "+l.qty:""):l.qty+" "+l.unit.replace(/\s*\(price TBC\)/i,""))+(l.tbc?" (TBC)":"")).join("\n")||o.itemsText)}</div>
+ <div><span class="chip ${sCls(o.status)}">${esc(o.status)}</span><span class="chip ${pCls(o.payment)}">${esc(o.payment)}${o.paymentMode?" · "+esc(o.paymentMode):""}</span>${o.tbc?'<span class="chip tbc">Price TBC</span>':""}<span class="chip src">${esc(o.source)}</span><span class="chip src">${esc(o.branch)}</span>${o.salesperson?`<span class="chip src">👤 ${esc(o.salesperson)}</span>`:""}</div>
+ ${o.notes?`<div class="meta">📝 ${esc(o.notes)}</div>`:""}
+ <div class="links"><a class="call" href="tel:${esc(o.phone.replace(/[^\d+]/g,""))}" data-stop="1">📞 Call</a><a class="wa" href="https://wa.me/${waNum(o.phone)}" target="_blank" rel="noopener" data-stop="1">WhatsApp</a></div></div>`}
+function renderList(){const L=filtered();$("#osum").innerHTML=sumBox(L);$("#olist").innerHTML=L.length?L.map(card).join(""):'<p class="msg" style="text-align:center">No orders match.</p>'}
+$("#olist").onclick=e=>{if(e.target.closest("[data-stop]"))return;const c=e.target.closest("[data-o]");if(c)openDetail(c.dataset.o)};
+
+/* ---------- order detail ---------- */
+let CUR=null;
+function openDetail(no){CUR=ORD.find(o=>o.no===no);if(!CUR)return;renderDetail();$("#detail").classList.remove("hidden");$("#detail").scrollTop=0}
+function closeDetail(){$("#detail").classList.add("hidden");CUR=null;renderList()}
+function renderDetail(){const o=CUR;const st=INIT.statuses,ps=INIT.payments,pm=INIT.payModes;
+ $("#detail").innerHTML=`<div class="bar"><button id="dBack">← Back</button><b style="flex:1">${esc(o.no)} · ${esc(o.branch)}</b></div><div class="wrap">
+ <div class="card"><div class="nm" style="font-size:18px;font-weight:800">${esc(o.name)}</div><div class="meta">📞 ${esc(o.phone)} · ${esc(o.source)}${o.salesperson?" · 👤 "+esc(o.salesperson):""}</div>
+  <div class="meta">${o.delivery?"🛵 Delivery":"🏬 Pickup"} · <b>${fmtD(o.date)}</b>${o.slot?" · "+esc(o.slot):""}</div><div class="meta">${esc(o.address)}</div>${o.notes?`<div class="meta">📝 ${esc(o.notes)}</div>`:""}
+  <div class="links"><a class="call" href="tel:${esc(o.phone.replace(/[^\d+]/g,""))}">📞 Call</a><a class="wa" href="https://wa.me/${waNum(o.phone)}" target="_blank" rel="noopener">WhatsApp</a></div></div>
+ <h3>Items</h3><table><tr><th>Item</th><th>Size/Qty</th><th class="n">Amount</th></tr>${o.lines.map((l,i)=>`<tr><td>${esc(l.item)}</td><td>${esc(gramsOf(l.unit)!==null?l.unit+(l.qty>1?" × "+l.qty:""):l.qty+" "+l.unit)}</td><td class="n">${l.tbc?`<span class="chip tbc">TBC</span>`:inr(l.amount)}</td></tr>${l.tbc?`<tr><td colspan="3" style="background:#fff7f7"><div class="grid2"><div><label for="fw${i}">Actual weight (optional)</label><input id="fw${i}" maxlength="30" placeholder="e.g. 620 g"></div><div><label for="fa${i}">Price incl. GST ₹</label><input id="fa${i}" type="number" inputmode="decimal" min="1" placeholder="Line total"></div></div><button class="gold" data-fill="${i}" style="width:100%;margin-top:6px">Save price</button></td></tr>`:""}`).join("")}
+  <tr><td colspan="2">Basic (excl. GST)</td><td class="n">${o.subtotal!=null&&!(o.tbc===o.lines.length)?inr2(o.subtotal):"—"}</td></tr><tr><td colspan="2">GST 5%</td><td class="n">${o.gst!=null&&!(o.tbc===o.lines.length)?inr2(o.gst):"—"}</td></tr><tr><th colspan="2">Total incl. GST</th><th class="n">${totTxt(o)}</th></tr></table>
+ <h3>Status</h3><div class="grid3" id="stBtns">${st.map(s=>`<button class="stbtn ${s===o.status?"on":""}" data-st="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+ <h3>Payment</h3><div class="seg" id="payBtns">${ps.map(s=>`<button class="${s===o.payment?"on":""}" data-pay="${esc(s)}">${esc(s==="Partially Paid"?"Partial":s)}</button>`).join("")}</div>
+ <label>Payment mode</label><div class="seg" id="pmBtns">${pm.map(s=>`<button class="${s===o.paymentMode?"on":""}" data-pm="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+ <div class="grid2"><div><label for="dAmt">Amount received ₹</label><input id="dAmt" type="number" inputmode="decimal" min="0" value="${o.amountReceived??""}"></div><div><label for="dAsg">Assigned to</label><input id="dAsg" maxlength="60" value="${esc(o.assignedTo)}"></div></div>
+ <label for="dNote">Internal note (staff only)</label><textarea id="dNote" maxlength="1000">${esc(o.internalNote)}</textarea><button id="dSave" style="width:100%;margin-top:8px">Save details</button>
+ <p class="msg">${o.handledBy?"Last handled by "+esc(o.handledBy):""}${o.confirmedBy?" · confirmed by "+esc(o.confirmedBy):""}</p></div>`;
+ $("#dBack").onclick=closeDetail}
+async function upd(fields,label){const r=await authApi({action:"updateOrder",orderNo:CUR.no,...fields});if(!r.ok){toast("Not saved: "+r.error);return false}Object.assign(CUR,fields.payment?{...fields,payment:fields.payment}:fields);CUR.handledBy=S.email;renderDetail();toast(label+" ✓");return true}
+$("#detail").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b||!CUR)return;
+ if(b.dataset.st){if(b.dataset.st==="Cancelled"&&!confirm("Cancel order "+CUR.no+"?"))return;b.disabled=true;await upd({status:b.dataset.st},"Status: "+b.dataset.st)}
+ else if(b.dataset.pay){await upd({payment:b.dataset.pay},"Payment: "+b.dataset.pay)}
+ else if(b.dataset.pm){await upd({paymentMode:b.dataset.pm===CUR.paymentMode?"":b.dataset.pm},"Payment mode")}
+ else if(b.id==="dSave"){const a=$("#dAmt").value;b.disabled=true;await upd({amountReceived:a===""?"":Number(a),assignedTo:$("#dAsg").value.trim(),internalNote:$("#dNote").value.trim()},"Saved")}
+ else if(b.dataset.fill){const i=+b.dataset.fill,a=Number($("#fa"+i).value);if(!(a>0))return toast("Enter the price incl. GST");b.disabled=true;
+  const r=await authApi({action:"fillPrice",orderNo:CUR.no,line:i,amount:a,weight:$("#fw"+i).value.trim()});if(!r.ok){b.disabled=false;return toast("Not saved: "+r.error)}
+  const l=CUR.lines[i],w=$("#fw"+i).value.trim();l.unit=l.unit.replace(/\s*\(price TBC\)/i,"")+(w?" ("+w+")":"");l.amount=Math.round(a);l.tbc=false;Object.assign(CUR,{total:r.total,subtotal:r.subtotal,gst:r.gst,tbc:r.tbc});renderDetail();toast("Price saved, total "+inr(r.total))}});
+
+/* ---------- new order ---------- */
+const NEW={source:"WhatsApp",branch:"Coimbatore",type:"pickup",cart:[],sel:null};
+function seg(el,opts,key,cb){$(el).innerHTML=opts.map(([v,t])=>`<button type="button" data-v="${esc(v)}" class="${NEW[key]===v?"on":""}">${esc(t)}</button>`).join("");$(el).onclick=e=>{const b=e.target.closest("button");if(!b)return;NEW[key]=b.dataset.v;$$(el+" button").forEach(x=>x.classList.toggle("on",x===b));cb&&cb()}}
+function setupNew(){seg("#nSource",["WhatsApp","Phone","Walk-in","Other"].map(x=>[x,x]),"source");
+ seg("#nBranch",[["Coimbatore","Coimbatore"],["Chennai","Chennai (+10%)"]],"branch",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){NEW.type="delivery";setupType()}updNew()});setupType();
+ $("#nOutlet").innerHTML=INIT.outlets.map(o=>`<option>${esc(o)}</option>`).join("");$("#nDate").value=INIT.today;$("#nDate").min=INIT.today;renderPick();updNew()}
+function setupType(){seg("#nType",[["pickup","🏬 Pickup at outlet"],["delivery","🛵 Delivery"]],"type",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){toast("Chennai is delivery only");NEW.type="delivery";setupType()}updNew()});updNew()}
+function updNew(){$("#pickupBox").classList.toggle("hidden",NEW.type!=="pickup");$("#delBox").classList.toggle("hidden",NEW.type!=="delivery");$("#rateNote").textContent=NEW.branch==="Chennai"?"Chennai rates (Coimbatore × 1.10)":"Coimbatore rates";renderPick();renderCfg();renderCart()}
+const itemPrice=it=>it.v?"from "+inr(Math.min(...it.v.map(v=>rateFor(v[1],NEW.branch))))+"/"+it.u:inr(rateFor(it.p,NEW.branch))+"/"+it.u;
+function renderPick(){if(!INIT)return;const q=$("#iq").value.trim().toLowerCase();const L=INIT.menu.filter(it=>!q||(it.n+" "+it.c+" "+(it.s||"")).toLowerCase().includes(q)).slice(0,q?40:12);
+ $("#pick").innerHTML=L.map(it=>`<button type="button" data-n="${esc(it.n)}">${esc(it.n)}<span>${itemPrice(it)}</span></button>`).join("")||'<p class="msg" style="padding:8px">No item found</p>'}
+$("#iq").addEventListener("input",renderPick);
+$("#pick").onclick=e=>{const b=e.target.closest("button");if(!b)return;const it=INIT.menu.find(m=>m.n===b.dataset.n);NEW.sel={name:it.n,mode:it.u==="kg"?"g":"qty",grams:500,qty:1,size:it.v?it.v[0][0]:null};renderCfg();$("#cfg").scrollIntoView({block:"nearest"})};
+function renderCfg(){const s=NEW.sel;if(!s){$("#cfg").innerHTML="";return}const it=INIT.menu.find(m=>m.n===s.name);let h=`<div class="cfg"><b>${esc(it.n)}</b> <span class="msg">${itemPrice(it)} incl. GST</span>`;
+ if(it.u==="kg"){const opts=[[250,"250g"],[500,"500g"],[1000,"1Kg"],["c","Custom g"],["pc","Pieces"]];const cur=s.mode==="pc"?"pc":[250,500,1000].includes(s.grams)&&!s.custom?s.grams:"c";
+  h+=`<div class="seg" style="margin-top:8px" id="wseg">${opts.map(([v,t])=>`<button type="button" data-w="${v}" class="${String(cur)===String(v)?"on":""}">${t}</button>`).join("")}</div>`;
+  if(cur==="c")h+=`<label for="cg">Grams (min ${it.sm?30:250})</label><input id="cg" type="number" inputmode="numeric" min="${it.sm?30:250}" max="50000" value="${s.grams}">`;
+  if(cur==="pc")h+=`<p class="msg">Pieces: price is confirmed later (TBC). Enter number of pieces below.</p>`}
+ if(it.v)h+=`<label>Size</label><div class="seg" id="vseg">${it.v.map(v=>`<button type="button" data-sz="${esc(v[0])}" class="${s.size===v[0]?"on":""}">${esc(v[0])} ${inr(rateFor(v[1],NEW.branch))}</button>`).join("")}</div>`;
+ const pl=validSel()?priceLine(s,NEW.branch):null;
+ h+=`<div class="row" style="margin-top:8px"><div><label for="cq">${s.mode==="pc"?"Pieces":it.u==="kg"?"Packs":"Quantity"}</label><div class="row"><button type="button" class="ghost" data-q="-1">−</button><input id="cq" type="number" inputmode="numeric" min="1" value="${s.qty}" style="text-align:center"><button type="button" class="ghost" data-q="1">+</button></div></div></div>
+  <div class="row" style="margin-top:8px"><span class="msg" id="cfgAmt">${pl?(pl.tbc?"Price TBC":pl.desc+" = "+inr(pl.amount)):"Enter a valid weight"}</span><button type="button" class="gold" id="addL">Add</button><button type="button" class="ghost" id="cancelL">Close</button></div></div>`;
+ $("#cfg").innerHTML=h}
+function validSel(){const s=NEW.sel,it=INIT.menu.find(m=>m.n===s.name);return !(it.u==="kg"&&s.mode==="g"&&!(s.grams>=(it.sm?30:250)&&s.grams<=50000))&&s.qty>=1}
+$("#cfg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!NEW.sel)return;const s=NEW.sel;
+ if(b.dataset.w){if(b.dataset.w==="pc"){s.mode="pc"}else if(b.dataset.w==="c"){s.mode="g";s.custom=true}else{s.mode="g";s.custom=false;s.grams=+b.dataset.w}renderCfg()}
+ else if(b.dataset.sz){s.size=b.dataset.sz;renderCfg()}else if(b.dataset.q){s.qty=Math.max(1,(+s.qty||1)+(+b.dataset.q));renderCfg()}
+ else if(b.id==="cancelL"){NEW.sel=null;renderCfg()}
+ else if(b.id==="addL"){if(!validSel())return toast("Check weight / quantity");NEW.cart.push({...s});NEW.sel=null;$("#iq").value="";renderPick();renderCfg();renderCart();toast("Added "+s.name)}});
+$("#cfg").addEventListener("input",e=>{const s=NEW.sel;if(!s)return;if(e.target.id==="cg")s.grams=Math.round(+e.target.value||0);if(e.target.id==="cq")s.qty=Math.max(1,Math.floor(+e.target.value||1));
+ const pl=validSel()?priceLine(s,NEW.branch):null;$("#cfgAmt").textContent=pl?(pl.tbc?"Price TBC":pl.desc+" = "+inr(pl.amount)):"Enter a valid weight"});
+function renderCart(){if(!INIT)return;const ls=NEW.cart.map(l=>priceLine(l,NEW.branch));
+ $("#cart").innerHTML=ls.length?ls.map((l,i)=>`<div class="l"><div><b>${esc(l.name)}</b><br><small>${esc(l.desc)}${l.tbc?"":" @ "+inr(l.rate)+"/"+(l.unit.match(/g$/)?"kg":esc(l.unit))}</small></div><b>${l.tbc?'<span class="chip tbc">TBC</span>':inr(l.amount)}</b><button type="button" data-rm="${i}" aria-label="Remove">✕</button></div>`).join(""):'<p class="msg">No items yet – search and tap an item above.</p>';
+ const tt=totals(ls.reduce((a,l)=>a+l.raw,0)),tbc=ls.filter(l=>l.tbc).length,only=ls.length&&tbc===ls.length;
+ $("#tot").innerHTML=`<div><span>Basic (excl. GST)</span><span id="tBasic">${only?"—":inr2(tt.subtotal)}</span></div><div><span>GST 5%</span><span id="tGst">${only?"—":inr2(tt.gst)}</span></div><div class="g"><span>Total incl. GST</span><span id="tTotal">${only?"Price TBC":inr(tt.total)}</span></div>${tbc?`<div><small>+ ${tbc} item(s) priced on confirmation</small></div>`:""}`}
+$("#cart").onclick=e=>{const b=e.target.closest("[data-rm]");if(b){NEW.cart.splice(+b.dataset.rm,1);renderCart()}};
+$("#nSave").onclick=async()=>{const m=(t,e)=>{$("#nMsg").textContent=t;$("#nMsg").className="msg"+(e?" err":"")};
+ const o={action:"createOrder",name:$("#nName").value.trim(),phone:$("#nPhone").value.trim(),source:NEW.source,branch:NEW.branch,type:NEW.type,outlet:$("#nOutlet").value,address:$("#nAddr").value.trim(),area:$("#nArea").value.trim(),pin:$("#nPin").value.trim(),
+  city:NEW.branch,date:$("#nDate").value,slot:$("#nSlot").value.trim(),notes:$("#nNotes").value.trim(),salesperson:$("#nSales").value.trim(),status:$("#nStatus").value,lines:NEW.cart.map(l=>({name:l.name,mode:l.mode,grams:l.grams,qty:l.qty,size:l.size}))};
+ if(!o.name)return m("Enter customer name.",1);if(!/^\+?\d{10,13}$/.test(o.phone.replace(/[^\d+]/g,"")))return m("Enter a valid mobile number (10 digits).",1);if(o.type==="delivery"&&!o.address)return m("Enter the delivery address.",1);
+ if(o.pin&&!/^\d{6}$/.test(o.pin))return m("PIN must be 6 digits.",1);if(!o.date)return m("Choose the date.",1);if(!o.lines.length)return m("Add at least one item.",1);
+ $("#nSave").disabled=true;m("Saving…");const r=await authApi(o);$("#nSave").disabled=false;
+ if(!r.ok)return m("Not saved: "+r.error,1);m("Saved as "+r.orderNo+" · "+(r.tbc&&r.tbc===o.lines.length?"Price TBC":inr(r.total)+" incl. GST"));toast("Order "+r.orderNo+" saved");
+ NEW.cart=[];["#nName","#nPhone","#nAddr","#nArea","#nPin","#nSlot","#nNotes"].forEach(s=>$(s).value="");renderCart();await load()};
+
+/* ---------- production + deliveries ---------- */
+["#pDate","#pBranch"].forEach(s=>$(s).addEventListener("input",renderProd));["#dDate","#dBranch"].forEach(s=>$(s).addEventListener("input",renderDel));
+$("#pPrint").onclick=$("#dPrint").onclick=()=>window.print();
+async function renderProd(){if(!INIT)return;const d=$("#pDate").value||INIT.today,b=$("#pBranch").value;const list=ORD.filter(o=>o.date===d&&(!b||o.branch===b));$("#psum").innerHTML=sumBox(list);
+ const r=await authApi({action:"production",date:d,branch:b});if(!r.ok){$("#ptable").innerHTML='<p class="msg err">Could not load: '+esc(r.error)+"</p>";return}
+ $("#ptable").innerHTML=`<h3 style="margin-top:0">Production for ${fmtD(d)}${b?" · "+esc(b):""} – ${r.orders} active orders</h3>`+(r.rows.length?`<table id="prodTable"><tr><th>Item</th><th class="n">Total</th><th>Orders</th></tr>${r.rows.map(x=>`<tr><td>${esc(x.item)}</td><td class="n"><b>${x.unit==="kg"?x.kg+" kg":x.qty+" "+esc(x.unit)}</b></td><td><small>${esc(x.orders.join(", "))}</small></td></tr>`).join("")}</table>`:'<p class="msg">Nothing to produce for this date.</p>')}
+function renderDel(){if(!INIT)return;const d=$("#dDate").value||INIT.today,b=$("#dBranch").value;const list=ORD.filter(o=>o.date===d&&o.status!=="Cancelled"&&(!b||o.branch===b));$("#dsum").innerHTML=sumBox(list);
+ const g={};list.forEach(o=>{const k=o.delivery?"🛵 "+(o.pin||"No PIN")+(o.area?" · "+o.area:""):"🏬 Pickup – "+o.address;(g[k]=g[k]||[]).push(o)});
+ const keys=Object.keys(g).sort((a,b)=>(a[0]==="🏬")-(b[0]==="🏬")||a.localeCompare(b));
+ $("#dlist").innerHTML=keys.length?keys.map(k=>`<div class="card grp"><h3 style="margin-top:0">${esc(k)} (${g[k].length})</h3>${g[k].sort((a,b)=>(a.slot||"").localeCompare(b.slot||"")).map(o=>`<div class="dl"><b>${esc(o.no)}</b> · ${esc(o.name)} · ${esc(o.phone)}${o.slot?" · ⏰ "+esc(o.slot):""}<br>${o.delivery?esc(o.address)+"<br>":""}<small>${esc(o.lines.map(l=>l.item+" "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?"×"+l.qty:""):l.qty+" "+l.unit)).join(", "))}</small><br><span class="chip ${sCls(o.status)}">${esc(o.status)}</span><span class="chip ${pCls(o.payment)}">${esc(o.payment)}</span> <b>${totTxt(o)}</b>${o.payment!=="Paid"&&o.amountReceived?" (received "+inr(o.amountReceived)+")":""}</div>`).join("")}</div>`).join(""):'<p class="msg">No deliveries or pickups for this date.</p>'}
+if(S)start();
+</script></body></html>
