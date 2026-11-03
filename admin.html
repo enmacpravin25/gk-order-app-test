@@ -1,0 +1,325 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#4a1838">
+<title>[TEST] GK Orders – Admin</title><style>
+:root{--plum:#4a1838;--maroon:#7a1f2b;--gold:#c9a14a;--cream:#fbf4e6;--ink:#2b1a22;--mut:#7a6670;--line:#e5d6b5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--cream);color:var(--ink);font-size:15px;padding-bottom:76px;overflow-x:hidden}
+header{background:var(--plum);color:var(--cream);padding:8px 12px;display:flex;gap:10px;align-items:center;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:20}
+body.test header{top:29px}body.test .sheet{top:29px}
+header img{height:36px}header h1{font-size:17px;margin:0;color:var(--gold)}header small{display:block;font-size:11px;opacity:.85;max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header .sp{flex:1}header button{background:transparent;border:1px solid var(--gold);color:var(--gold);min-height:36px;padding:4px 10px;font-size:13px}
+button{font:inherit;background:var(--maroon);color:#fff;border:0;border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer}button:disabled{opacity:.5}
+button.ghost{background:#fff;color:var(--maroon);border:1px solid var(--maroon)}button.gold{background:var(--gold);color:var(--plum);font-weight:700}button.red{background:#fff;color:#c62828;border:1px solid #c62828}
+button.sm{min-height:38px;padding:6px 10px;font-size:13px}
+input,select,textarea{font:inherit;font-size:16px;width:100%;padding:10px;border:1px solid var(--gold);border-radius:10px;background:#fff;color:var(--ink);min-height:44px}
+input[type=checkbox]{width:auto;min-height:0;margin:0}
+textarea{min-height:64px}label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}label.ck{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px}
+.wrap{padding:10px;max-width:760px;margin:auto}.hidden{display:none!important}.mock{background:#6a4c93;color:#fff;text-align:center;font-size:12px;padding:3px}
+.card{background:#fff;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;padding:10px 12px;margin:10px 0;overflow-wrap:anywhere}
+.login{max-width:400px;margin:24px auto}.login h2{color:var(--maroon);margin:0 0 6px}.msg{font-size:13px;color:var(--mut);margin:8px 0}.err{color:#c62828}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}.wr{flex-wrap:wrap}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}.chips button{flex:0 0 auto;background:#fff;color:var(--plum);border:1px solid var(--gold);border-radius:22px;min-height:40px;padding:6px 14px}
+.chips button.on{background:var(--plum);color:var(--gold);border-color:var(--plum)}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.sum div{background:var(--plum);color:var(--cream);border-radius:10px;padding:6px;text-align:center;font-size:11px}.sum b{display:block;font-size:16px;color:var(--gold)}
+.chip{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:700;margin:4px 4px 0 0;background:#eee;color:#333}
+.r-owner{background:var(--plum);color:var(--gold)}.r-editor{background:#6a1b9a;color:#fff}.r-manager{background:#00838f;color:#fff}.r-staff{background:#e0e0e0;color:#333}.c-hid{background:#fde2e2;color:#a01010}.c-core{background:#f3e8db;color:var(--plum)}
+.meta{font-size:13px;color:var(--mut);margin-top:2px}.nm{font-weight:700;font-size:15px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--plum);display:grid;grid-template-columns:repeat(5,1fr);border-top:3px solid var(--gold);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{background:transparent;color:var(--cream);border-radius:0;min-height:60px;font-size:12px;padding:4px}nav.tabs button b{display:block;font-size:20px}nav.tabs button.on{color:var(--gold);background:#5c2348}
+.sheet{position:fixed;inset:0;background:var(--cream);z-index:40;overflow-y:auto;padding-bottom:30px}
+.sheet .bar{position:sticky;top:0;background:var(--plum);color:var(--gold);display:flex;align-items:center;gap:8px;padding:8px;z-index:2}.sheet .bar b{flex:1}.sheet .bar button{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.tw{overflow-x:auto;max-width:100%}table{width:100%;border-collapse:collapse;background:#fff;font-size:13px}th,td{border:1px solid var(--line);padding:5px;text-align:left;vertical-align:top}th{background:var(--plum);color:var(--cream);font-weight:600}td.n{text-align:right;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid2>*{min-width:0}
+h3{color:var(--maroon);margin:14px 0 6px;font-size:16px}h3.t{margin-top:0}
+.mi{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0;cursor:pointer}.mi>div{flex:1;min-width:0}.mi .p{font-weight:700;color:var(--plum);white-space:nowrap}
+.lv{display:flex;gap:6px;align-items:center;margin:4px 0}.lv input[type=text]{flex:1;min-width:0}.lv .x{min-height:40px;padding:4px 10px}
+.ph button{background:#f3e8db;color:var(--plum);border:1px solid var(--gold);border-radius:14px;min-height:34px;padding:3px 9px;font-size:13px;margin:2px}
+pre.pv{white-space:pre-wrap;background:#e7f7e7;border:1px solid #9ccc9c;border-radius:10px;padding:10px;font:14px/1.4 system-ui,sans-serif;margin:6px 0;overflow-wrap:anywhere}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:#222;color:#fff;padding:10px 16px;border-radius:20px;z-index:60;font-size:14px;max-width:90vw}
+.bar1{height:8px;background:var(--gold);border-radius:4px}
+.denied{text-align:center}.denied h2{color:#c62828}
+@media (max-width:360px){body{font-size:14px}.sum b{font-size:14px}}
+</style></head><body>
+<div id="mockbar" class="mock hidden">DEMO MODE – fake data, nothing is saved</div>
+<div id="testbar" style="position:sticky;top:0;z-index:9999;background:#c62828;color:#fff;text-align:center;font:700 13px/1.3 system-ui,sans-serif;padding:6px 8px;letter-spacing:.3px">TEST ENVIRONMENT – changes go to the test sheet</div>
+<header><img src="logo.webp" alt="GK" onerror="this.remove()"><div><h1>GK Admin <span style="background:#c62828;color:#fff;font-size:.6em;padding:1px 6px;border-radius:4px;vertical-align:middle">TEST</span></h1><small id="whoami">Owner settings</small></div><span class="sp"></span><button id="auditBtn" class="hidden">Audit</button><button id="lo" class="hidden">Log out</button></header>
+
+<section id="login" class="wrap login"><div class="card">
+ <h2>Owner log in</h2>
+ <form id="lf" method="post" action="#" autocomplete="on" novalidate><div id="s1"><label for="em">Email</label><input type="email" id="em" name="email" autocomplete="username email" inputmode="email" autocapitalize="off" spellcheck="false" required placeholder="you@example.com"><label class="ck" style="margin-top:10px"><input type="checkbox" id="rem" name="remember" checked> Keep me signed in on this device (30 days)</label><button type="submit" id="send" style="width:100%;margin-top:10px">Send code</button></div>
+ <div id="s2" class="hidden"><label for="code">6-digit code from your email</label><input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" placeholder="123456"><button type="submit" id="ver" style="width:100%;margin-top:10px">Verify</button><p class="msg"><a href="#" id="back">Different email / resend</a></p></div></form>
+ <p class="msg" id="lmsg"></p><p class="msg">Same login as the GK Orders app. Only owners can use this page.</p></div></section>
+
+<section id="denied" class="wrap login hidden"><div class="card denied"><h2>Owner access required</h2><p class="msg" id="deniedMsg">This page is only for owners. Use the GK Orders app for daily work.</p><a href="../"><button class="ghost" style="width:100%">Open GK Orders</button></a><button id="lo2" style="width:100%;margin-top:8px">Log out</button></div></section>
+
+<main id="app" class="hidden">
+ <section id="usersView" class="wrap">
+  <div id="reqBox"></div>
+  <div class="card"><div class="row"><h3 class="t">Users <small class="msg" id="ucount"></small></h3><button class="gold sm" id="uAdd" style="flex:0 0 auto">+ Add user</button></div>
+   <div id="uForm" class="hidden"></div><div id="ulist"></div></div>
+ </section>
+ <section id="menuView" class="wrap hidden">
+  <div class="card"><h3 class="t">Chennai price multiplier</h3><div class="row"><input id="mult" type="number" step="0.01" min="1" max="3" inputmode="decimal" aria-label="Chennai multiplier"><button id="multSave" style="flex:0 0 auto">Save</button></div><p class="msg">Chennai price = Coimbatore price × this (rounded). Current: <b id="multNow"></b></p></div>
+  <div class="row"><input type="search" id="mq" placeholder="Search items…" aria-label="Search items"><button class="gold" id="mAdd" style="flex:0 0 auto">+ Item</button></div>
+  <div class="chips" id="mcat" style="margin-top:6px"></div>
+  <div class="card" id="mlist"></div>
+ </section>
+ <section id="listsView" class="wrap hidden"><div id="lists"></div></section>
+ <section id="tplView" class="wrap hidden">
+  <div class="card"><h3 class="t">Acknowledgement messages</h3><p class="msg">Placeholders (tap to insert): </p><div class="ph" id="phs"></div>
+   <label for="tWa">WhatsApp text</label><textarea id="tWa" rows="10"></textarea>
+   <label for="tSub">Email subject</label><input id="tSub" maxlength="200">
+   <label for="tBody">Email body <small>(blank = same as WhatsApp text)</small></label><textarea id="tBody" rows="6"></textarea>
+   <div class="row wr" style="margin-top:8px"><button class="gold" id="tSave">Save templates</button><button class="ghost" id="tReset">Reset to built-in</button></div><p class="msg" id="tMsg"></p></div>
+  <div class="card"><h3 class="t">Live preview</h3><div class="row"><input id="pvNo" placeholder="Order no (blank = sample)" autocapitalize="characters" aria-label="Order number for preview"><button class="ghost" id="pvLoad" style="flex:0 0 auto">Use order</button></div>
+   <p class="msg" id="pvSrc"></p><b>WhatsApp</b><pre class="pv" id="pvWa"></pre><b>Email</b><div class="meta">Subject: <span id="pvSub"></span></div><pre class="pv" id="pvMail"></pre></div>
+ </section>
+ <section id="repView" class="wrap hidden">
+  <div class="card"><div class="chips" id="rq"></div><div class="grid2"><div><label for="rFrom">From</label><input type="date" id="rFrom"></div><div><label for="rTo">To</label><input type="date" id="rTo"></div>
+   <div><label for="rBranch">Branch</label><select id="rBranch"><option value="">Both</option><option>Coimbatore</option><option>Chennai</option></select></div><div><label for="rBasis">Date of</label><select id="rBasis"><option value="placed">Order placed</option><option value="delivery">Delivery / pickup</option></select></div></div>
+   <button id="rRun" style="width:100%;margin-top:10px">Run report</button></div>
+  <div id="rOut"></div>
+ </section>
+</main>
+<div id="sheet" class="sheet hidden"></div>
+<nav class="tabs hidden" id="tabs"><button data-v="usersView" class="on"><b>👥</b>Users</button><button data-v="menuView"><b>🍬</b>Menu</button><button data-v="listsView"><b>📝</b>Lists</button><button data-v="tplView"><b>💬</b>Messages</button><button data-v="repView"><b>📊</b>Reports</button></nav>
+
+<script>
+/* ===== CONFIG (set by build_admin.py) ===== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbyECX8GD4mkJdHnKKsUX6mT1J9175WjKQZeh1gw-WwRRQH6J70J-KxrgCcxnDIJsxC5/exec';
+/* ========================================== */
+const MOCK=new URLSearchParams(location.search).get("mock")==="1";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inr=x=>"₹"+Math.round(+x||0).toLocaleString("en-IN");
+const SK="gk_orders_session",LE="gk_last_email";let S=JSON.parse(localStorage.getItem(SK)||sessionStorage.getItem(SK)||"null"),D=null,expT;
+const toast=t=>{const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2800)};
+const addDays=(ymd,n)=>{const d=new Date(ymd+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const fmtT=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",timeZone:"Asia/Kolkata"}):"";
+const errText=r=>r.message||({owner_required:"Owner access required",network_error:"Network error – check connection",bad_email:"Invalid email",exists:"Already in the list"}[r.error])||r.error||"Failed";
+
+/* ---------- mock API (?mock=1): same rules as Admin.gs, fake data ---------- */
+function mockApi(){const ALLOW=["pravin@enmac.in","owner@example.com","staff@example.com","manager@example.com","editor@example.com"];const today=new Date(Date.now()+5.5*36e5).toISOString().slice(0,10);
+ const CORE=["New","Confirmed","In Production","Ready","Out for Delivery","Delivered","Cancelled"];
+ const PH=["customer","orderNo","items","total","tbcNote","date","slot","place","address","payment","shop","branch","phone"];
+ const DEF={wa_text:"Vanakkam {customer},\n\nThank you for your order with House of Seerbakshanam GK.\nOrder No: {orderNo}\n\n{items}\n\nTotal (incl. GST): {total}{tbcNote}\n{place}\nPayment: {payment}\n\nQuestions? WhatsApp/call us: {shop}\n\nThank you,\nHouse of Seerbakshanam GK",email_subject:"Order {orderNo} confirmed – House of Seerbakshanam GK",email_body:""};
+ const db={otp:null,tok:localStorage.getItem("gk_mock_tok"),email:localStorage.getItem("gk_mock_email")||"pravin@enmac.in",
+  users:[{email:"pravin@enmac.in",role:"owner",note:"Owner",branch:"",sessions:1},{email:"staff@example.com",role:"staff",note:"Counter",branch:"",sessions:2},{email:"manager@example.com",role:"manager",note:"Chennai",branch:"Chennai",sessions:1},{email:"editor@example.com",role:"editor",note:"",branch:"",sessions:0},{email:"owner@example.com",role:"owner",note:"Partner",branch:"",sessions:0}],
+  requests:[{id:"AR-0123456789abcdef",time:Date.now()-3*36e5,email:"new.person@example.com",name:"Divya R",note:"Guruvayur outlet counter",kind:"access",expired:false,currentRole:""},{id:"ER-0123456789abcdee",time:Date.now()-36e5,email:"staff@example.com",name:"",note:"Edit order GK-0102",kind:"edit",expired:false,currentRole:"staff"}],
+  menu:[{name:"Mysurpa",category:"Sweets",unit:"kg",price:900,sizes:[],small:false,subtitle:"",billCode:"99",hidden:false,sort:1},{name:"Adirasam",category:"Sweets",unit:"kg",price:880,sizes:[],small:true,subtitle:"",billCode:"28",hidden:false,sort:2},
+   {name:"Badusha",category:"Sweets",unit:"kg",price:880,sizes:[],small:true,subtitle:"",billCode:"35",hidden:false,sort:3},{name:"Kaju Katli",category:"Sweets",unit:"kg",price:1400,sizes:[],small:false,subtitle:"",billCode:"",hidden:false,sort:4},
+   {name:"Muruku",category:"Savouries",unit:"kg",price:700,sizes:[],small:false,subtitle:"2/3/4/5/7/9/11 lines",billCode:"61",hidden:false,sort:5},{name:"Mixture",category:"Savouries",unit:"kg",price:680,sizes:[],small:false,subtitle:"",billCode:"64",hidden:false,sort:6},
+   {name:"Manoharam Parupu Thengai",category:"Kudu",unit:"piece",price:null,sizes:[{size:"1 ft",price:1500,code:"120"},{size:"Medium",price:1300,code:"121"},{size:"Small",price:1000,code:"122"}],small:false,subtitle:"",billCode:"",hidden:false,sort:7},
+   {name:"Boli",category:"Round Sweets",unit:"piece",price:30,sizes:[],small:false,subtitle:"",billCode:"80",hidden:false,sort:8},{name:"Thambulam Set",category:"Sweets",unit:"set",price:1000,sizes:[],small:false,subtitle:"",billCode:"",hidden:false,sort:9},
+   {name:"Puttu",category:"Sweets",unit:"kg",price:800,sizes:[],small:false,subtitle:"Seasonal",billCode:"",hidden:true,sort:10}],
+  lists:{status:CORE.map(v=>({value:v,core:true,hidden:false})),paymode:["Cash","UPI","Card","Bank transfer","Other"].map(v=>({value:v,core:false,hidden:false})),source:["WhatsApp","Phone","Walk-in","Other"].map(v=>({value:v,core:false,hidden:false})),outlet:["Sivananda Colony, Coimbatore","Guruvayur"].map(v=>({value:v,core:false,hidden:false}))},
+  tpl:{...DEF},mult:1.1,audit:[],orders:[]};
+ const sample={no:"GK-0123",branch:"Coimbatore",name:"Lakshmi",phone:"9840012345",delivery:false,address:"Sivananda Colony, Coimbatore",date:addDays(today,1),slot:"5-6 PM",total:1570,payment:"Partially Paid",amountReceived:500,tbc:1,
+  lines:[{item:"Mysurpa",unit:"500 g",qty:1,amount:450,tbc:false},{item:"Manoharam Parupu Thengai – Small",unit:"piece",qty:1,amount:1000,tbc:false},{item:"Boli",unit:"piece",qty:4,amount:120,tbc:false},{item:"Badusha",unit:"pcs (price TBC)",qty:10,amount:0,tbc:true}]};
+ const inrS=x=>"Rs."+Math.round(x).toLocaleString("en-IN");const isG=u=>/^\d+(\.\d+)?\s?(g|kg)$/i.test(u);
+ const vars=o=>{const when=o.date.split("-").reverse().join("-"),sl=o.slot?" ("+o.slot+")":"",shop=o.branch==="Chennai"?"919884000000":"919894000000";
+  return{customer:o.name,orderNo:o.no,items:o.lines.map(l=>"• "+l.item+" – "+(isG(l.unit)?l.unit+(l.qty>1?" × "+l.qty:""):l.qty+" "+l.unit.replace(/\s*\(price TBC\)/i,""))+" – "+(l.tbc?"price to be confirmed":inrS(l.amount))).join("\n"),
+   total:inrS(o.total),tbcNote:o.tbc?" + items with price to be confirmed":"",date:when,slot:o.slot||"",address:o.address,branch:o.branch,phone:o.phone,place:(o.delivery?"Delivery on ":"Pickup on ")+when+sl+(o.delivery?"\nAddress: ":"\nStore: ")+o.address,
+   payment:o.payment+(o.amountReceived?" (received "+inrS(o.amountReceived)+")":""),shop:"+"+shop.slice(0,2)+" "+shop.slice(2)}};
+ const render=(t,v)=>String(t).replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m);const unknown=t=>{const o=[];String(t||"").replace(/\{(\w+)\}/g,(m,k)=>{if(!PH.includes(k)&&!o.includes(k))o.push(k)});return o};
+ /* fake orders for reports */
+ const names=["Meena","Arun","Shanthi","Karthik","Priya","Lakshmi","Ganesh","Divya","Ravi","Uma"],srcs=["WhatsApp","Phone","Walk-in","Website","Other"],sts=["New","Confirmed","In Production","Ready","Delivered","Delivered","Cancelled"],pays=["Pending","Paid","Paid","Partially Paid"];
+ for(let i=0;i<24;i++){const ch=i%4===3,day=addDays(today,-(i%9)),its=[["Mysurpa","500 g",450],["Mixture","1 kg",680],["Boli","piece",30*(i%5+1)],["Kaju Katli","1 kg",1400],["Manoharam Parupu Thengai – Medium","piece",1300]].filter((x,j)=>(i+j)%3===0);
+  const lines=its.map(x=>({item:x[0],unit:x[1],qty:x[1]==="piece"&&x[0]==="Boli"?i%5+1:1,amount:Math.round(x[2]*(ch?1.1:1))}));const total=lines.reduce((a,l)=>a+l.amount,0)||900,pay=pays[i%4];
+  db.orders.push({no:(ch?"CH-":"GK-")+String(100+i).padStart(4,"0"),time:new Date(day+"T10:00:00+05:30").getTime(),date:addDays(day,i%3),branch:ch?"Chennai":"Coimbatore",name:names[i%10],phone:"98400"+String(10000+i),source:srcs[i%5],
+   delivery:ch||i%2===0,address:ch||i%2===0?"Home":(i%3?"Sivananda Colony, Coimbatore":"Guruvayur"),status:sts[i%7],payment:pay,paymentMode:pay==="Pending"?"":["UPI","Cash","Card"][i%3],amountReceived:pay==="Partially Paid"?Math.round(total/2):null,total,tbc:i%8===0?1:0,lines:lines.length?lines:[{item:"Mysurpa",unit:"1 kg",qty:1,amount:900}]})}
+ const E=(e,m)=>({ok:false,error:e,message:m});const aud=(a,item,o,n)=>db.audit.unshift({time:Date.now(),email:db.email,action:a,item,old:typeof o==="string"?o:JSON.stringify(o),new:typeof n==="string"?n:JSON.stringify(n)});
+ const owners=()=>db.users.filter(u=>u.role==="owner").length,roleOf=e=>(db.users.find(u=>u.email===e)||{}).role;const U=()=>JSON.parse(JSON.stringify(db.users));const M=()=>JSON.parse(JSON.stringify(db.menu));const LS=()=>JSON.parse(JSON.stringify(db.lists));
+ function report(o){const from=o.from,to=o.to,br=o.branch,basis=o.basis==="delivery"?"delivery":"placed";if(!(from<=to))return E("bad_range");
+  const day=x=>basis==="delivery"?x.date:new Date(x.time+5.5*36e5).toISOString().slice(0,10);const all=db.orders.filter(x=>(!br||x.branch===br)&&day(x)>=from&&day(x)<=to),act=all.filter(x=>x.status!=="Cancelled");
+  const recv=x=>x.payment==="Paid"?x.total:Math.min(x.total,+x.amountReceived||0);const grp=(l,k)=>{const m={};l.forEach(x=>{const kk=k(x)||"(blank)",y=m[kk]||(m[kk]={key:kk,orders:0,value:0});y.orders++;y.value+=x.total});return Object.values(m).sort((a,b)=>b.orders-a.orders||b.value-a.value)};
+  const it={};act.forEach(x=>x.lines.forEach(l=>{const g=isG(l.unit)?parseFloat(l.unit)*(/kg/i.test(l.unit)?1000:1):null,y=it[l.item]||(it[l.item]={item:l.item,qty:0,kg:0,amount:0,orders:0});if(g!==null)y.kg+=g*l.qty/1000;else y.qty+=l.qty;y.amount+=l.amount;y.orders++}));
+  const days={};for(let d=from;d<=to;d=addDays(d,1))days[d]={date:d,orders:0,revenue:0,received:0,cancelled:0};all.forEach(x=>{const y=days[day(x)];if(!y)return;if(x.status==="Cancelled"){y.cancelled++;return}y.orders++;y.revenue+=x.total;y.received+=recv(x)});
+  const rev=act.reduce((a,x)=>a+x.total,0),rec=act.reduce((a,x)=>a+recv(x),0);aud("report",from+".."+to,br||"all branches",all.length+" orders");
+  return{ok:true,from,to,branch:br,basis,totals:{orders:all.length,active:act.length,cancelled:all.length-act.length,revenue:rev,received:rec,due:rev-rec,gst:Math.round((rev-rev/1.05)*100)/100,avg:act.length?Math.round(rev/act.length):0,tbc:act.filter(x=>x.tbc).length},
+   byStatus:grp(all,x=>x.status),byPayment:grp(act,x=>x.payment),bySource:grp(act,x=>x.source),byOutlet:grp(act,x=>x.delivery?"Home delivery ("+x.branch+")":x.address),byBranch:grp(act,x=>x.branch),byMode:grp(act,x=>x.paymentMode),
+   topItems:Object.values(it).map(y=>({...y,kg:Math.round(y.kg*100)/100})).sort((a,b)=>b.amount-a.amount).slice(0,25),daily:Object.values(days),
+   pending:act.filter(x=>x.payment!=="Paid").map(x=>({no:x.no,branch:x.branch,name:x.name,phone:x.phone,date:x.date,status:x.status,payment:x.payment,total:x.total,received:recv(x),due:x.total-recv(x)})).sort((a,b)=>a.date<b.date?-1:1),
+   rows:all.map(x=>({no:x.no,placed:new Date(x.time+5.5*36e5).toISOString().slice(0,10),date:x.date,branch:x.branch,name:x.name,phone:x.phone,source:x.source,type:x.delivery?"Delivery":"Pickup",outlet:x.delivery?"":x.address,status:x.status,payment:x.payment,paymentMode:x.paymentMode,total:x.total,received:recv(x),tbc:x.tbc,items:x.lines.map(l=>l.item+" "+l.unit).join("; ")}))}}
+ return async o=>{await new Promise(r=>setTimeout(r,80));
+  switch(o.action){
+   case"requestOtp":if(ALLOW.includes(String(o.email).trim().toLowerCase()))db.otp="123456";return{ok:true,message:"If this email is allowed, a login code has been sent. It expires in 10 minutes. (Demo code: 123456)"};
+   case"verifyOtp":if(db.otp&&o.code===db.otp){db.otp=null;db.tok="mock"+Math.random();db.email=String(o.email).trim().toLowerCase();localStorage.setItem("gk_mock_tok",db.tok);localStorage.setItem("gk_mock_email",db.email);const rm=o.remember===true;return{ok:true,token:db.tok,email:db.email,role:roleOf(db.email),remember:rm,expiresAt:Date.now()+(rm?30*864e5:8*36e5)}}return E("invalid_or_expired_code");
+   case"logout":if(o.token===db.tok){db.tok=null;localStorage.removeItem("gk_mock_tok")}return{ok:true}}
+  if(!o.token||o.token!==db.tok||!roleOf(db.email))return E("auth_required");
+  if(roleOf(db.email)!=="owner"){aud("forbidden ("+o.action+")","",roleOf(db.email),"owner_required");return E("owner_required","Owner access required")}
+  switch(o.action){
+   case"adminInit":return{ok:true,email:db.email,role:"owner",today,seeded:[],users:U(),requests:JSON.parse(JSON.stringify(db.requests)),menu:M(),units:["kg","piece","set","plate","box","pack"],lists:LS(),payments:["Pending","Paid","Partially Paid"],branches:["Coimbatore","Chennai"],roles:["owner","editor","manager","staff"],
+    templates:{...db.tpl},defaults:{...DEF},placeholders:PH,sample,sampleVars:vars(sample),settings:{chennaiMult:db.mult},audit:db.audit.slice(0,40)};
+   case"adminUserSave":{const em=String(o.email||"").trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return E("bad_email");if(!["owner","editor","manager","staff"].includes(o.role))return E("bad_role");
+    const f=db.users.find(u=>u.email===em);if(o.isNew&&f)return E("exists","This email is already in the list.");if(!o.isNew&&!f)return E("not_found");const br=o.role==="manager"?o.branch||"":"";
+    if(f){if(em===db.email&&o.role!=="owner")return E("self_demote","You cannot change your own owner role.");if(f.role==="owner"&&o.role!=="owner"&&owners()<=1)return E("last_owner","At least one owner must remain.");
+     aud("user update",em,{role:f.role,note:f.note,branch:f.branch},{role:o.role,note:o.note??f.note,branch:br});Object.assign(f,{role:o.role,branch:br,note:o.note??f.note})}
+    else{db.users.push({email:em,role:o.role,note:o.note||"Added by "+db.email,branch:br,sessions:0});aud("user add",em,"",{role:o.role,branch:br})}return{ok:true,users:U()}}
+   case"adminUserRemove":{const em=o.email;if(em===db.email)return E("self_remove","You cannot remove yourself.");const f=db.users.find(u=>u.email===em);if(!f)return E("not_found");if(f.role==="owner"&&owners()<=1)return E("last_owner","At least one owner must remain.");
+    db.users=db.users.filter(u=>u!==f);aud("user remove",em,{role:f.role},"removed; "+f.sessions+" session(s) revoked");return{ok:true,revoked:f.sessions,users:U()}}
+   case"adminRevoke":{if(o.email===db.email)return E("self","Use Log out for your own sessions.");const f=db.users.find(u=>u.email===o.email),n=f?f.sessions:0;if(f)f.sessions=0;aud("sessions revoke",o.email,n+" active","0 active");return{ok:true,revoked:n,users:U()}}
+   case"adminDecide":{const q=db.requests.find(r=>r.id===o.id);if(!q)return E("not_found");if(!["staff","editor","manager"].includes(o.role||"staff"))return E("bad_role");db.requests=db.requests.filter(r=>r!==q);let st="Denied",msg="Denied "+q.email;
+    if(o.decision==="approve"){st="Approved";if(q.kind==="access"){if(!roleOf(q.email))db.users.push({email:q.email,role:o.role||"staff",note:"Approved "+q.id,branch:o.role==="manager"?o.branch||"":"",sessions:0});msg=q.email+" added as "+(o.role||"staff")}
+     else{const f=db.users.find(u=>u.email===q.email);if(f&&f.role==="staff")f.role="editor";msg=q.email+" is now "+(f?f.role:"?")}}
+    aud((q.kind==="edit"?"edit request ":"access request ")+st.toLowerCase(),q.id,{email:q.email},{status:st});return{ok:true,status:st,message:msg,requests:JSON.parse(JSON.stringify(db.requests)),users:U()}}
+   case"adminMenuSave":{const it=o.item||{};if(!String(it.name||"").trim())return E("name_required");if(/[|=;#]/.test(it.name))return E("bad_name","Name cannot contain | = ; #");
+    const sz=(it.sizes||[]).filter(s=>s.size||s.price);if(sz.some(s=>!s.size||!(+s.price>0)))return E("bad_sizes","Each size needs a label and a price 1–100000.");if(it.unit==="kg"&&sz.length)return E("bad_sizes","Per-kg items cannot have sizes.");
+    if(!sz.length&&!(+it.price>0&&+it.price<=100000))return E("bad_price","Price must be 1–100000 (GST incl.).");const cur=o.original?db.menu.find(m=>m.name===o.original):null;if(o.original&&!cur)return E("not_found");
+    if(db.menu.some(m=>m.name.toLowerCase()===it.name.trim().toLowerCase()&&m!==cur))return E("duplicate_name","Another item already has this name.");
+    const x={name:it.name.trim(),category:it.category||"Other",unit:it.unit,price:sz.length?null:+it.price,sizes:sz.map(s=>({size:s.size,price:+s.price,code:s.code||""})),small:it.unit==="kg"&&!!it.small,subtitle:it.subtitle||"",billCode:it.billCode||"",hidden:!!it.hidden,sort:+it.sort||(cur?cur.sort:db.menu.length+1)};
+    if(cur){aud(cur.name!==x.name?"menu rename+edit":"menu edit",x.name,cur,x);Object.assign(cur,x)}else{db.menu.push(x);aud("menu add",x.name,"",x)}db.menu.sort((a,b)=>a.sort-b.sort);return{ok:true,item:x,menu:M()}}
+   case"adminMenuDelete":{const cur=db.menu.find(m=>m.name===o.name);if(!cur)return E("not_found");db.menu=db.menu.filter(m=>m!==cur);aud("menu delete",o.name,cur,"");return{ok:true,menu:M()}}
+   case"adminSettingsSave":{const m=+o.chennaiMult;if(!(m>=1&&m<=3))return E("bad_multiplier","Multiplier must be between 1.00 and 3.00.");aud("setting Chennai multiplier","OMS Chennai Multiplier",String(db.mult),String(m));db.mult=m;return{ok:true,settings:{chennaiMult:m}}}
+   case"adminListsSave":{const k=o.list,seen={},vals=[];for(const x of o.values||[]){const v=String(x.value||"").trim();if(!v)continue;if(seen[v.toLowerCase()])return E("duplicate","Duplicate value: "+v);seen[v.toLowerCase()]=1;
+     if(k==="source"&&/^website$/i.test(v))return E("reserved",'"Website" is reserved (blank Source = website order).');const c=k==="status"&&CORE.includes(v);vals.push({value:v,core:c,hidden:!c&&!!x.hidden})}
+    const miss=k==="status"?CORE.filter(c=>!vals.some(x=>x.value===c)):[];if(miss.length)return E("core_required","Core statuses cannot be removed or renamed: "+miss.join(", "));if(!vals.some(x=>!x.hidden))return E("empty","Keep at least one visible value.");
+    aud("list "+k,k,db.lists[k].map(x=>x.value).join(", "),vals.map(x=>x.value+(x.hidden?" (hidden)":"")).join(", "));db.lists[k]=vals;return{ok:true,lists:LS()}}
+   case"adminTemplatesSave":{const t=o.templates||{};const bad=[].concat(...["wa_text","email_subject","email_body"].map(k=>unknown(t[k])));if(bad.length)return E("unknown_placeholder","Unknown placeholder(s): {"+bad.join("}, {")+"}");
+    for(const k in t)if(t[k]!==db.tpl[k]){aud("template "+k,k,db.tpl[k],t[k]);db.tpl[k]=t[k]}const v=vars(sample);return{ok:true,templates:{...db.tpl},preview:{wa:render(db.tpl.wa_text||DEF.wa_text,v)}}}
+   case"adminPreview":{if(o.orderNo){const x=db.orders.find(z=>z.no===String(o.orderNo).toUpperCase());if(!x)return E("not_found");return{ok:true,orderNo:x.no,vars:vars(x)}}return{ok:true,orderNo:sample.no,vars:vars(sample)}}
+   case"adminReport":return report(o);
+   case"adminAudit":return{ok:true,audit:db.audit.slice(0,o.limit||100)}}
+  return E("unknown_action")}}
+const mock=MOCK?mockApi():null;
+async function api(o){if(mock)return mock(o);if(!API_URL||API_URL.startsWith("__"))return{ok:false,error:"API_URL not configured"};
+ try{const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(o),redirect:"follow"});return await r.json()}catch(e){return{ok:false,error:"network_error"}}}
+async function authApi(o){const r=await api({...o,token:S&&S.token});if(r.error==="auth_required")logout(true,"Session expired – please log in again.");else if(r.error==="owner_required")denied();return r}
+if(MOCK)$("#mockbar").classList.remove("hidden");if($("#testbar"))document.body.classList.add("test");
+
+/* ---------- login (same as GK Orders: email OTP + remember device; shares the session) ---------- */
+function saveS(){const j=JSON.stringify(S);if(S.rem){localStorage.setItem(SK,j);sessionStorage.removeItem(SK)}else{sessionStorage.setItem(SK,j);localStorage.removeItem(SK)}}
+function clearS(){localStorage.removeItem(SK);sessionStorage.removeItem(SK)}
+function fillEmail(){const e=localStorage.getItem(LE);if(e&&!$("#em").value)$("#em").value=e}
+const lmsg=(t,e)=>{$("#lmsg").textContent=t;$("#lmsg").className="msg"+(e?" err":"")};
+const show=id=>["#s1","#s2"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+const doSend=async()=>{const em=$("#em").value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return lmsg("Enter a valid email.",1);$("#send").disabled=true;lmsg("Sending…");const r=await api({action:"requestOtp",email:em});$("#send").disabled=false;
+ if(!r.ok)return lmsg("Could not send: "+errText(r),1);lmsg(r.message);show("#s2");$("#code").focus()};
+$("#back").onclick=e=>{e.preventDefault();show("#s1");lmsg("")};
+const doVer=async()=>{const c=$("#code").value.replace(/\D/g,"");if(c.length!==6)return lmsg("Enter the 6-digit code.",1);$("#ver").disabled=true;const rem=$("#rem").checked,r=await api({action:"verifyOtp",email:$("#em").value.trim(),code:c,remember:rem});$("#ver").disabled=false;
+ if(!r.ok)return lmsg("Code is wrong or expired. After 5 wrong tries request a new code.",1);S={token:r.token,email:r.email,role:r.role,exp:r.expiresAt,rem:rem&&r.remember!==false};saveS();localStorage.setItem(LE,r.email||$("#em").value.trim());$("#code").value="";start()};
+$("#lf").addEventListener("submit",e=>{e.preventDefault();if($("#s2").classList.contains("hidden"))doSend();else doVer()});
+function hideAll(){["#app","#tabs","#lo","#auditBtn","#sheet","#denied"].forEach(s=>$(s).classList.add("hidden"))}
+function logout(local,msg){if(!local&&S)api({action:"logout",token:S.token});S=null;D=null;clearS();clearTimeout(expT);fillEmail();hideAll();$("#login").classList.remove("hidden");show("#s1");$("#whoami").textContent="Owner settings";lmsg(msg||"Logged out.")}
+function denied(){hideAll();$("#login").classList.add("hidden");$("#denied").classList.remove("hidden");$("#whoami").textContent=S?S.email:""}
+$("#lo").onclick=()=>logout(false);$("#lo2").onclick=()=>logout(false);
+async function start(){if(!S||Date.now()>S.exp)return logout(true,S?"Session expired – please log in again.":"");lmsg("Loading…");const r=await authApi({action:"adminInit"});if(!r.ok){if(S&&r.error!=="owner_required")lmsg("Could not load: "+errText(r),1);return}
+ D=r;$("#login").classList.add("hidden");$("#denied").classList.add("hidden");["#app","#tabs","#lo","#auditBtn"].forEach(s=>$(s).classList.remove("hidden"));$("#whoami").textContent=r.email+" · owner";
+ clearTimeout(expT);expT=setTimeout(()=>{if(S&&Date.now()>=S.exp)logout(false,"Session expired – please log in again.")},Math.min(2e9,Math.max(0,S.exp-Date.now())));
+ if(r.seeded&&r.seeded.length)toast("Created tabs: "+r.seeded.join(", "));renderUsers();renderMenu();renderLists();initTpl();initRep()}
+$$("#tabs button").forEach(b=>b.onclick=()=>{$$("#tabs button").forEach(x=>x.classList.toggle("on",x===b));$$("main>section").forEach(s=>s.classList.toggle("hidden",s.id!==b.dataset.v));scrollTo(0,0)});
+const busy=async(btn,p)=>{if(btn)btn.disabled=true;try{return await p}finally{if(btn)btn.disabled=false}};
+const confirmOk=t=>MOCK&&window.__autoConfirm!==undefined?window.__autoConfirm:confirm(t);
+
+/* ---------- Users + requests ---------- */
+const brOpts=v=>(D.branches||[]).map(b=>`<option${b===v?" selected":""}>${b}</option>`).join("");
+const roleOpts=(v,list)=>(list||D.roles).map(x=>`<option value="${x}"${x===v?" selected":""}>${x}</option>`).join("");
+function renderUsers(){const me=D.email,own=D.users.filter(u=>u.role==="owner").length;$("#ucount").textContent=D.users.length+" allowed";
+ $("#reqBox").innerHTML=D.requests.length?`<div class="card" style="border-left-color:#c62828"><h3 class="t">Pending requests (${D.requests.length})</h3>${D.requests.map((q,i)=>`<div class="rq" data-i="${i}" style="border-bottom:1px solid var(--line);padding:8px 0">
+  <div class="nm">${esc(q.name||q.email)} <span class="chip ${q.kind==="edit"?"r-editor":"c-core"}">${q.kind==="edit"?"Edit access":"New access"}</span>${q.expired?'<span class="chip c-hid">old</span>':""}</div><div class="meta">${esc(q.email)} · ${fmtT(q.time)}${q.currentRole?" · now "+q.currentRole:""}</div>${q.note?`<div class="meta">“${esc(q.note)}”</div>`:""}
+  ${q.kind==="access"?`<div class="grid2"><div><label>Approve as</label><select class="qr">${roleOpts("staff",["staff","editor","manager"])}</select></div><div class="qbw hidden"><label>Branch</label><select class="qb">${brOpts("Chennai")}</select></div></div>`:`<p class="meta">Approve = staff → editor (can edit order items)</p>`}
+  <div class="row" style="margin-top:6px"><button class="gold sm qa">Approve</button><button class="red sm qd">Deny</button></div></div>`).join("")}</div>`:"";
+ $$("#reqBox .rq").forEach(el=>{const q=D.requests[+el.dataset.i],rs=el.querySelector(".qr");if(rs)rs.onchange=()=>el.querySelector(".qbw").classList.toggle("hidden",rs.value!=="manager");
+  const go=async(dec,b)=>{const r=await busy(b,authApi({action:"adminDecide",id:q.id,decision:dec,role:rs?rs.value:"staff",branch:rs&&rs.value==="manager"?el.querySelector(".qb").value:""}));if(!r.ok)return toast(errText(r));D.requests=r.requests;D.users=r.users;toast(r.message||r.status);renderUsers()};
+  el.querySelector(".qa").onclick=e=>go("approve",e.target);el.querySelector(".qd").onclick=e=>{if(confirmOk("Deny this request?"))go("deny",e.target)}});
+ $("#ulist").innerHTML=D.users.map((u,i)=>`<div class="ur" data-i="${i}" style="border-bottom:1px solid var(--line);padding:8px 0"><div class="row"><div><div class="nm">${esc(u.email)}${u.email===me?' <span class="chip c-core">you</span>':""}</div>
+  <div><span class="chip r-${u.role}">${u.role}</span>${u.branch?`<span class="chip c-core">${esc(u.branch)}</span>`:""}<span class="chip">${u.sessions} active session${u.sessions===1?"":"s"}</span></div>${u.note?`<div class="meta">${esc(u.note)}</div>`:""}</div>
+  <button class="ghost sm ue" style="flex:0 0 auto">Edit</button></div><div class="uf hidden"></div></div>`).join("");
+ $$("#ulist .ur").forEach(el=>{const u=D.users[+el.dataset.i];el.querySelector(".ue").onclick=()=>{const f=el.querySelector(".uf");if(!f.classList.contains("hidden")){f.classList.add("hidden");return}userForm(f,u)}});
+ $("#uAdd").onclick=()=>{const f=$("#uForm");if(!f.classList.contains("hidden")){f.classList.add("hidden");return}userForm(f,null)}}
+function userForm(f,u){const self=u&&u.email===D.email,lastOwner=u&&u.role==="owner"&&D.users.filter(x=>x.role==="owner").length<=1;f.classList.remove("hidden");
+ f.innerHTML=`<div class="card" style="border-left-color:var(--plum)">${u?"":`<label>Email</label><input class="fe" type="email" autocapitalize="off" maxlength="254">`}
+  <div class="grid2"><div><label>Role</label><select class="fr"${self||lastOwner?" disabled":""}>${roleOpts(u?u.role:"staff")}</select></div><div class="fbw"><label>Branch (manager)</label><select class="fb">${brOpts(u&&u.branch||"Chennai")}</select></div></div>
+  ${self?'<p class="meta">This is you – you cannot change your own role or remove yourself.</p>':lastOwner?'<p class="meta">Last owner – add another owner first.</p>':""}
+  <label>Note</label><input class="fn" maxlength="200" value="${esc(u?u.note:"")}"><div class="row wr" style="margin-top:8px"><button class="gold sm fs">${u?"Save":"Add user"}</button>
+  ${u&&!self?`<button class="ghost sm fv"${u.sessions?"":" disabled"}>Revoke sessions</button><button class="red sm fx"${lastOwner?" disabled":""}>Remove</button>`:""}</div><p class="msg fm"></p></div>`;
+ const fr=f.querySelector(".fr"),fbw=f.querySelector(".fbw"),m=t=>{f.querySelector(".fm").textContent=t;f.querySelector(".fm").className="msg fm err"};const syn=()=>fbw.classList.toggle("hidden",fr.value!=="manager");fr.onchange=syn;syn();
+ f.querySelector(".fs").onclick=async e=>{const r=await busy(e.target,authApi({action:"adminUserSave",isNew:!u,email:u?u.email:f.querySelector(".fe").value.trim(),role:fr.value,branch:fr.value==="manager"?f.querySelector(".fb").value:"",note:f.querySelector(".fn").value.trim()}));
+  if(!r.ok)return m(errText(r));D.users=r.users;toast(u?"Saved":"User added");f.classList.add("hidden");renderUsers()};
+ const v=f.querySelector(".fv");if(v)v.onclick=async e=>{if(!confirmOk("Log "+u.email+" out of every device?"))return;const r=await busy(e.target,authApi({action:"adminRevoke",email:u.email}));if(!r.ok)return m(errText(r));D.users=r.users;toast(r.revoked+" session(s) revoked");renderUsers()};
+ const x=f.querySelector(".fx");if(x)x.onclick=async e=>{if(!confirmOk("Remove "+u.email+"? They will be logged out everywhere."))return;const r=await busy(e.target,authApi({action:"adminUserRemove",email:u.email}));if(!r.ok)return m(errText(r));D.users=r.users;toast("Removed");renderUsers()}}
+
+/* ---------- Menu ---------- */
+let MCAT="";
+const chn=p=>Math.round(p*(D.settings.chennaiMult||1.1));
+const priceTxt=m=>m.sizes&&m.sizes.length?m.sizes.map(s=>esc(s.size)+" "+inr(s.price)).join(" · "):inr(m.price)+(m.unit==="kg"?"/kg":"/"+esc(m.unit));
+function renderMenu(){$("#mult").value=D.settings.chennaiMult;$("#multNow").textContent="× "+D.settings.chennaiMult;const cats=[...new Set(D.menu.map(m=>m.category))];
+ $("#mcat").innerHTML=["",...cats].map(c=>`<button data-c="${esc(c)}" class="${c===MCAT?"on":""}">${c?esc(c):"All ("+D.menu.length+")"}</button>`).join("");$$("#mcat button").forEach(b=>b.onclick=()=>{MCAT=b.dataset.c;renderMenu()});
+ const q=$("#mq").value.trim().toLowerCase(),list=D.menu.filter(m=>(!MCAT||m.category===MCAT)&&(!q||m.name.toLowerCase().includes(q)));
+ $("#mlist").innerHTML=list.length?list.map(m=>`<div class="mi" data-n="${esc(m.name)}"><div><div class="nm">${esc(m.name)}${m.hidden?' <span class="chip c-hid">hidden</span>':""}</div><div class="meta">${esc(m.category)} · ${priceTxt(m)}${m.billCode?" · code "+esc(m.billCode):""}${m.subtitle?" · "+esc(m.subtitle):""}</div></div><span class="p">›</span></div>`).join(""):'<p class="msg">No items.</p>';
+ $$("#mlist .mi").forEach(el=>el.onclick=()=>itemSheet(D.menu.find(m=>m.name===el.dataset.n)))}
+$("#mq").oninput=renderMenu;$("#mAdd").onclick=()=>itemSheet(null);
+$("#multSave").onclick=async e=>{const r=await busy(e.target,authApi({action:"adminSettingsSave",chennaiMult:+$("#mult").value}));if(!r.ok)return toast(errText(r));D.settings=r.settings;toast("Chennai multiplier saved");renderMenu()};
+function itemSheet(m){const it=m?JSON.parse(JSON.stringify(m)):{name:"",category:MCAT||"Sweets",unit:"kg",price:"",sizes:[],small:false,subtitle:"",billCode:"",hidden:false,sort:""};const sh=$("#sheet");sh.classList.remove("hidden");
+ sh.innerHTML=`<div class="bar"><button id="xClose">‹ Back</button><b>${m?"Edit item":"New item"}</b></div><div class="wrap"><div class="card">
+  <label for="iName">Name</label><input id="iName" maxlength="80" value="${esc(it.name)}">${m?'<p class="meta">Renaming does not change old orders.</p>':""}
+  <div class="grid2"><div><label for="iCat">Category</label><input id="iCat" list="cats" maxlength="40" value="${esc(it.category)}"><datalist id="cats">${[...new Set(D.menu.map(x=>x.category))].map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+   <div><label for="iUnit">Unit</label><select id="iUnit">${D.units.map(u=>`<option${u===it.unit?" selected":""}>${u}</option>`).join("")}${D.units.includes(it.unit)?"":`<option selected>${esc(it.unit)}</option>`}</select></div></div>
+  <div id="iPriceW"><label for="iPrice">Price (₹, GST incl., Coimbatore) <span id="iUnitTxt"></span></label><input id="iPrice" type="number" inputmode="decimal" min="1" max="100000" value="${it.price??""}"><p class="meta" id="iChn"></p></div>
+  <label class="ck" id="iSmallW"><input type="checkbox" id="iSmall"${it.small?" checked":""}> Small weights (100 g / 200 g)</label>
+  <div id="iSizesW"><label>Sizes (piece items: label, price, bill code)</label><div id="iSizes"></div><button class="ghost sm" id="iAddSize">+ Size</button></div>
+  <div class="grid2"><div><label for="iCode">Bill code</label><input id="iCode" maxlength="20" value="${esc(it.billCode)}"></div><div><label for="iSort">Sort</label><input id="iSort" type="number" inputmode="numeric" value="${esc(it.sort)}"></div></div>
+  <label for="iSub">Subtitle (optional)</label><input id="iSub" maxlength="80" value="${esc(it.subtitle)}">
+  <label class="ck" style="margin-top:10px"><input type="checkbox" id="iHid"${it.hidden?" checked":""}> Hidden (not shown when taking orders)</label>
+  <button class="gold" id="iSave" style="width:100%;margin-top:12px">Save item</button>${m?'<button class="red" id="iDel" style="width:100%;margin-top:8px">Delete item</button>':""}<p class="msg err" id="iMsg"></p></div></div>`;
+ const sizes=it.sizes.map(s=>({...s}));const drawS=()=>{$("#iSizes").innerHTML=sizes.map((s,i)=>`<div class="lv"><input type="text" placeholder="Size" value="${esc(s.size)}" data-i="${i}" data-k="size" aria-label="Size"><input type="number" placeholder="₹" value="${s.price}" data-i="${i}" data-k="price" style="width:90px;flex:0 0 90px" aria-label="Size price"><input type="text" placeholder="Code" value="${esc(s.code||"")}" data-i="${i}" data-k="code" style="width:70px;flex:0 0 70px" aria-label="Size bill code"><button class="red x" data-i="${i}">✕</button></div>`).join("");
+  $$("#iSizes input").forEach(x=>x.oninput=()=>{sizes[x.dataset.i][x.dataset.k]=x.value;syn()});$$("#iSizes .x").forEach(b=>b.onclick=()=>{sizes.splice(+b.dataset.i,1);drawS();syn()})};
+ const syn=()=>{const u=$("#iUnit").value,hs=sizes.length>0;$("#iSmallW").classList.toggle("hidden",u!=="kg");$("#iSizesW").classList.toggle("hidden",u==="kg");$("#iPriceW").classList.toggle("hidden",hs&&u!=="kg");$("#iUnitTxt").textContent="per "+u;
+  const p=+$("#iPrice").value;$("#iChn").textContent=hs&&u!=="kg"?"":p>0?"Chennai: "+inr(chn(p))+" per "+u:""};
+ drawS();syn();$("#iUnit").onchange=syn;$("#iPrice").oninput=syn;$("#iAddSize").onclick=()=>{sizes.push({size:"",price:"",code:""});drawS();syn()};$("#xClose").onclick=()=>sh.classList.add("hidden");
+ $("#iSave").onclick=async e=>{const u=$("#iUnit").value,item={name:$("#iName").value.trim(),category:$("#iCat").value.trim(),unit:u,price:$("#iPrice").value,sizes:u==="kg"?[]:sizes.filter(s=>s.size||s.price),small:$("#iSmall").checked,billCode:$("#iCode").value.trim(),sort:$("#iSort").value,subtitle:$("#iSub").value.trim(),hidden:$("#iHid").checked};
+  const r=await busy(e.target,authApi({action:"adminMenuSave",original:m?m.name:"",item}));if(!r.ok)return $("#iMsg").textContent=errText(r);D.menu=r.menu;sh.classList.add("hidden");toast("Saved "+r.item.name);renderMenu()};
+ if(m)$("#iDel").onclick=async e=>{if(!confirmOk("Delete "+m.name+"? (Hide it instead to keep it for later.)"))return;const r=await busy(e.target,authApi({action:"adminMenuDelete",name:m.name}));if(!r.ok)return $("#iMsg").textContent=errText(r);D.menu=r.menu;sh.classList.add("hidden");toast("Deleted");renderMenu()}}
+
+/* ---------- Lists ---------- */
+const LNAME={status:"Order statuses",paymode:"Payment modes",source:"Order sources",outlet:"Pickup outlets"};
+function renderLists(){$("#lists").innerHTML=Object.keys(LNAME).map(k=>`<div class="card" data-k="${k}"><h3 class="t">${LNAME[k]}</h3>${k==="status"?'<p class="meta">Core statuses are locked (the app depends on them). Add extra ones below.</p>':k==="source"?'<p class="meta">"Website" is added automatically.</p>':""}<div class="vals"></div>
+  <div class="row" style="margin-top:6px"><button class="ghost sm add">+ Add</button><button class="gold sm save">Save</button></div><p class="msg err lm"></p></div>`).join("")+`<div class="card"><h3 class="t">Payment statuses</h3><p class="meta">Fixed: ${esc(D.payments.join(", "))} (used for totals).</p></div>`;
+ $$("#lists .card[data-k]").forEach(c=>{const k=c.dataset.k,vals=D.lists[k].map(x=>({...x}));
+  const draw=()=>{c.querySelector(".vals").innerHTML=vals.map((x,i)=>`<div class="lv"><input type="text" value="${esc(x.value)}" data-i="${i}" ${x.core?"readonly":""} maxlength="60" aria-label="${LNAME[k]} value">${x.core?'<span class="chip c-core">core</span>':`<label class="ck" style="margin:0;font-size:12px"><input type="checkbox" data-h="${i}"${x.hidden?" checked":""}>hide</label><button class="red x" data-x="${i}" aria-label="Remove">✕</button>`}</div>`).join("");
+   c.querySelectorAll("input[type=text]").forEach(x=>x.oninput=()=>vals[x.dataset.i].value=x.value);c.querySelectorAll("[data-h]").forEach(x=>x.onchange=()=>vals[x.dataset.h].hidden=x.checked);c.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{vals.splice(+b.dataset.x,1);draw()})};
+  draw();c.querySelector(".add").onclick=()=>{vals.push({value:"",core:false,hidden:false});draw();c.querySelector(".vals input[type=text]:last-of-type")&&[...c.querySelectorAll(".vals input[type=text]")].pop().focus()};
+  c.querySelector(".save").onclick=async e=>{const r=await busy(e.target,authApi({action:"adminListsSave",list:k,values:vals.filter(x=>x.value.trim())}));if(!r.ok)return c.querySelector(".lm").textContent=errText(r);D.lists=r.lists;toast(LNAME[k]+" saved");renderLists()}})}
+
+/* ---------- Templates + live preview ---------- */
+let PV=null,PVSRC="";
+const rnd=(t,v)=>String(t||"").replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(v,k)?String(v[k]):m);
+function preview(){const v=PV||D.sampleVars,wa=$("#tWa").value||D.defaults.wa_text;$("#pvWa").textContent=rnd(wa,v);$("#pvSub").textContent=rnd($("#tSub").value||D.defaults.email_subject,v);$("#pvMail").textContent=rnd($("#tBody").value||wa,v);
+ const bad=[];[$("#tWa").value,$("#tSub").value,$("#tBody").value].join(" ").replace(/\{(\w+)\}/g,(m,k)=>{if(!D.placeholders.includes(k)&&!bad.includes(k))bad.push(k)});
+ $("#tMsg").textContent=bad.length?"Unknown placeholder(s): {"+bad.join("}, {")+"}":"";$("#tMsg").className="msg"+(bad.length?" err":"");$("#pvSrc").textContent="Showing: "+(PVSRC||"sample order "+D.sample.no)}
+let lastTa=null;
+function initTpl(){const t=D.templates;$("#tWa").value=t.wa_text||D.defaults.wa_text;$("#tSub").value=t.email_subject||D.defaults.email_subject;$("#tBody").value=t.email_body||"";
+ $("#phs").innerHTML=D.placeholders.map(p=>`<button data-p="${p}">{${p}}</button>`).join("");["#tWa","#tSub","#tBody"].forEach(s=>{$(s).oninput=preview;$(s).onfocus=()=>lastTa=$(s)});
+ $$("#phs button").forEach(b=>b.onclick=()=>{const ta=lastTa||$("#tWa"),p="{"+b.dataset.p+"}",a=ta.selectionStart??ta.value.length,z=ta.selectionEnd??a;ta.value=ta.value.slice(0,a)+p+ta.value.slice(z);ta.focus();ta.setSelectionRange(a+p.length,a+p.length);preview()});preview()}
+$("#tReset").onclick=()=>{if(!confirmOk("Replace the text boxes with the built-in messages? (Not saved until you tap Save.)"))return;$("#tWa").value=D.defaults.wa_text;$("#tSub").value=D.defaults.email_subject;$("#tBody").value="";preview()};
+$("#tSave").onclick=async e=>{const r=await busy(e.target,authApi({action:"adminTemplatesSave",templates:{wa_text:$("#tWa").value,email_subject:$("#tSub").value,email_body:$("#tBody").value}}));if(!r.ok){$("#tMsg").textContent=errText(r);$("#tMsg").className="msg err";return}D.templates=r.templates;toast("Templates saved")};
+$("#pvLoad").onclick=async e=>{const no=$("#pvNo").value.trim().toUpperCase();if(!no){PV=null;PVSRC="";return preview()}const r=await busy(e.target,authApi({action:"adminPreview",orderNo:no}));if(!r.ok)return toast(r.error==="not_found"?"Order "+no+" not found":errText(r));PV=r.vars;PVSRC="order "+r.orderNo;preview()};
+
+/* ---------- Reports ---------- */
+let REP=null;
+function initRep(){const t=D.today,m0=t.slice(0,8)+"01",pm=addDays(m0,-1);const Q=[["Today",t,t],["Yesterday",addDays(t,-1),addDays(t,-1)],["Last 7 days",addDays(t,-6),t],["This month",m0,t],["Last month",pm.slice(0,8)+"01",pm]];
+ $("#rq").innerHTML=Q.map((q,i)=>`<button data-i="${i}"${i===2?' class="on"':""}>${q[0]}</button>`).join("");$$("#rq button").forEach(b=>b.onclick=()=>{$$("#rq button").forEach(x=>x.classList.toggle("on",x===b));const q=Q[+b.dataset.i];$("#rFrom").value=q[1];$("#rTo").value=q[2];runRep()});
+ if(!$("#rFrom").value){$("#rFrom").value=Q[2][1];$("#rTo").value=t}}
+const tbl=(h,rows)=>`<div class="tw"><table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${rows.join("")||`<tr><td colspan="${h.length}">None</td></tr>`}</table></div>`;
+const grpT=(title,g,tot)=>`<h3>${title}</h3>`+tbl(["",`Orders`,"Value"],g.map(x=>`<tr><td>${esc(x.key)}<div class="bar1" style="width:${tot?Math.round(x.orders/tot*100):0}%"></div></td><td class="n">${x.orders}</td><td class="n">${inr(x.value)}</td></tr>`));
+async function runRep(){const from=$("#rFrom").value,to=$("#rTo").value;if(!from||!to||from>to)return toast("Pick a valid date range");$("#rOut").innerHTML='<p class="msg">Loading…</p>';
+ const r=await busy($("#rRun"),authApi({action:"adminReport",from,to,branch:$("#rBranch").value,basis:$("#rBasis").value}));if(!r.ok){$("#rOut").innerHTML=`<p class="msg err">${esc(errText(r))}</p>`;return}REP=r;const T=r.totals,mx=Math.max(1,...r.daily.map(d=>d.revenue));
+ $("#rOut").innerHTML=`<div class="sum"><div><b>${T.orders}</b>Orders</div><div><b>${inr(T.revenue)}</b>Revenue</div><div><b>${inr(T.received)}</b>Received</div><div><b>${inr(T.due)}</b>Due</div><div><b>${inr(T.avg)}</b>Avg order</div><div><b>${T.cancelled}</b>Cancelled</div></div>
+  <p class="meta">${r.from} → ${r.to} · ${r.branch||"both branches"} · by ${r.basis==="delivery"?"delivery date":"date placed"} · GST in revenue ${inr(T.gst)}${T.tbc?" · "+T.tbc+" order(s) with price TBC":""}. Revenue excludes cancelled.</p>
+  <div class="card"><div class="row wr"><button class="ghost sm" data-csv="rows">⬇ Orders CSV</button><button class="ghost sm" data-csv="daily">⬇ Daily CSV</button><button class="ghost sm" data-csv="topItems">⬇ Items CSV</button><button class="ghost sm" data-csv="pending">⬇ Pending CSV</button></div></div>
+  <div class="card"><h3 class="t">Daily revenue</h3>${tbl(["Date","Orders","Revenue",""],r.daily.map(d=>`<tr><td>${d.date.slice(5)}</td><td class="n">${d.orders}${d.cancelled?` <small>(+${d.cancelled}✕)</small>`:""}</td><td class="n">${inr(d.revenue)}</td><td style="width:30%"><div class="bar1" style="width:${Math.round(d.revenue/mx*100)}%"></div></td></tr>`))}</div>
+  <div class="card">${grpT("By status",r.byStatus,T.orders)}${grpT("By payment",r.byPayment,T.active)}${grpT("By source",r.bySource,T.active)}${grpT("By outlet / delivery",r.byOutlet,T.active)}${r.branch?"":grpT("By branch",r.byBranch,T.active)}${grpT("By payment mode",r.byMode,T.active)}</div>
+  <div class="card"><h3 class="t">Top items</h3>${tbl(["Item","Qty","Value"],r.topItems.map(x=>`<tr><td>${esc(x.item)}</td><td class="n">${x.kg?x.kg+" kg":""}${x.kg&&x.qty?" + ":""}${x.qty?x.qty+" pcs":""}</td><td class="n">${inr(x.amount)}</td></tr>`))}</div>
+  <div class="card"><h3 class="t">Pending payments (${r.pending.length})</h3>${tbl(["Order","Due",""],r.pending.map(p=>`<tr><td><b>${esc(p.no)}</b> ${esc(p.name)}<div class="meta">${esc(p.date)} · ${esc(p.status)} · ${esc(p.payment)}</div></td><td class="n">${inr(p.due)}</td><td><a href="tel:${esc(p.phone)}">📞</a></td></tr>`))}</div>`;
+ $$("#rOut [data-csv]").forEach(b=>b.onclick=()=>csv(b.dataset.csv))}
+$("#rRun").onclick=runRep;
+const cell=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.test(s))s="'"+s;return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+function csv(k){if(!REP)return;const rows=REP[k];if(!rows||!rows.length)return toast("Nothing to export");const h=Object.keys(rows[0]);const txt="\ufeff"+[h.join(","),...rows.map(r=>h.map(c=>cell(r[c])).join(","))].join("\r\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/csv;charset=utf-8"}));a.download=`gk-${k==="rows"?"orders":k}-${REP.from}_${REP.to}${REP.branch?"-"+REP.branch:""}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+
+/* ---------- Audit ---------- */
+$("#auditBtn").onclick=async()=>{const sh=$("#sheet");sh.classList.remove("hidden");sh.innerHTML='<div class="bar"><button id="xClose">‹ Back</button><b>Audit (admin changes)</b></div><div class="wrap"><p class="msg">Loading…</p></div>';$("#xClose").onclick=()=>sh.classList.add("hidden");
+ const r=await authApi({action:"adminAudit",limit:200});if(!r.ok)return;sh.querySelector(".wrap").innerHTML=r.audit.length?r.audit.map(a=>`<div class="card"><div class="nm">${esc(a.action)} <small class="meta">${esc(a.item)}</small></div><div class="meta">${fmtT(a.time)} · ${esc(a.email)}</div>
+  ${a.old?`<div class="meta"><b>Before:</b> ${esc(String(a.old).slice(0,400))}</div>`:""}${a.new?`<div class="meta"><b>After:</b> ${esc(String(a.new).slice(0,400))}</div>`:""}</div>`).join(""):'<p class="msg">No admin changes yet.</p>'};
+
+fillEmail();if(S)start();else if(!MOCK&&(!API_URL||API_URL.startsWith("__")))lmsg("API_URL not configured – use the built admin-test/ or admin-live/ copy.",1);
+</script></body></html>
