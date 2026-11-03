@@ -124,7 +124,7 @@ function aggregate(orders,date,branch){const map={},act=orders.filter(o=>o.date=
  const rows=Object.values(map).map(x=>{if(x.unit==="kg")x.kg=r2(x.grams/1000);return x});rows.sort((a,b)=>a.item<b.item?-1:a.item>b.item?1:(a.unit<b.unit?-1:1));return{date,orders:act.length,rows}}
 
 /* ---------- mock API (?mock=1) ---------- */
-function mockApi(){const ALLOW=["demo@example.com","staff@example.com","pravin@enmac.in"];const today=new Date(Date.now()+5.5*36e5).toISOString().slice(0,10);
+function mockApi(){const ALLOW=["demo@example.com","staff@example.com","pravin@enmac.in","manager@example.com"];const today=new Date(Date.now()+5.5*36e5).toISOString().slice(0,10);
  const menu=[{n:"Mysurpa",c:"Sweets",u:"kg",p:900},{n:"Adirasam",c:"Sweets",u:"kg",p:880,sm:1},{n:"Badusha",c:"Sweets",u:"kg",p:880,sm:1},{n:"Kaju Katli",c:"Sweets",u:"kg",p:1400},{n:"Boondi Laddu",c:"Sweets",u:"kg",p:880},
   {n:"Muruku",c:"Savouries",u:"kg",p:700,s:"2/3/4/5/7/9/11 lines"},{n:"Mixture",c:"Savouries",u:"kg",p:680},{n:"Ribbon Pakoda",c:"Savouries",u:"kg",p:680},
   {n:"Manoharam Parupu Thengai",c:"Kudu",u:"piece",v:[["1 ft",1500],["Medium",1300],["Small",1000]]},{n:"Mysurpak Parupu Kudu",c:"Kudu",u:"piece",v:[["Big",2000],["Small",1100]]},
@@ -147,13 +147,13 @@ function mockApi(){const ALLOW=["demo@example.com","staff@example.com","pravin@e
  return async o=>{await new Promise(r=>setTimeout(r,120));const au=()=>o.token&&o.token===db.tok;const E=e=>({ok:false,error:e});
   switch(o.action){
    case"requestOtp":if(ALLOW.includes(String(o.email).trim().toLowerCase()))db.otp="123456";return{ok:true,message:"If this email is allowed, a login code has been sent. It expires in 10 minutes. (Demo code: 123456)"};
-   case"verifyOtp":if(db.otp&&o.code===db.otp){db.otp=null;db.tok="mock"+Math.random();localStorage.setItem("gk_mock_tok",db.tok);db.email=o.email.toLowerCase();db.role=db.email.startsWith("staff")?"staff":"owner";const rm=o.remember===true;return{ok:true,token:db.tok,email:db.email,role:db.role,remember:rm,expiresAt:Date.now()+(rm?30*864e5:8*36e5)}}return E("invalid_or_expired_code");
+   case"verifyOtp":if(db.otp&&o.code===db.otp){db.otp=null;db.tok="mock"+Math.random();localStorage.setItem("gk_mock_tok",db.tok);db.email=o.email.toLowerCase();db.role=db.email.startsWith("staff")?"staff":db.email.startsWith("manager")?"manager":"owner";db.branch=db.role==="manager"?"Chennai":"";const rm=o.remember===true;return{ok:true,token:db.tok,email:db.email,role:db.role,remember:rm,expiresAt:Date.now()+(rm?30*864e5:8*36e5)}}return E("invalid_or_expired_code");
    case"requestAccess":if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(o.email||"")))return E("bad_email");if(!String(o.name||"").trim())return E("name_required");return{ok:true,message:"Thank you. If this request can be accepted, the owner will review it and you will get an email once approved."};
    case"logout":if(o.token===db.tok){db.tok=null;localStorage.removeItem("gk_mock_tok")}return{ok:true}}
   if(!au())return E("auth_required");
   switch(o.action){
-   case"init":return{ok:true,email:db.email,role:db.role,canEditItems:db.role!=="staff",today,menu,outlets:["Sivananda Colony, Coimbatore","Guruvayur"],statuses:["New","Confirmed","In Production","Ready","Out for Delivery","Delivered","Cancelled"],payments:["Pending","Paid","Partially Paid"],payModes:["Cash","UPI","Card","Bank transfer","Other"],sources:["WhatsApp","Phone","Walk-in","Other","Website"],gstRate:5,chennaiMult:1.1};
-   case"listOrders":return{ok:true,today,orders:JSON.parse(JSON.stringify(db.orders)).sort((a,b)=>b.time-a.time)};
+   case"init":return{ok:true,email:db.email,role:db.role,branch:db.branch||"",branches:db.branch?[db.branch]:["Coimbatore","Chennai"],canEditItems:db.role!=="staff",today,menu,outlets:["Sivananda Colony, Coimbatore","Guruvayur"],statuses:["New","Confirmed","In Production","Ready","Out for Delivery","Delivered","Cancelled"],payments:["Pending","Paid","Partially Paid"],payModes:["Cash","UPI","Card","Bank transfer","Other"],sources:["WhatsApp","Phone","Walk-in","Other","Website"],gstRate:5,chennaiMult:1.1};
+   case"listOrders":return{ok:true,today,orders:JSON.parse(JSON.stringify(db.orders.filter(x=>!db.branch||x.branch===db.branch))).sort((a,b)=>b.time-a.time)};
    case"production":return{ok:true,...aggregate(db.orders,o.date,o.branch||null)};
    case"createOrder":{if(!String(o.name||"").trim())return E("name_required");if(!/^\+?\d{10,13}$/.test(String(o.phone||"").replace(/[^\d+]/g,"")))return E("bad_phone");if(!o.lines||!o.lines.length)return E("no_items");
     if(o.branch==="Chennai"&&o.type!=="delivery")return E("chennai_delivery_only");if(o.type==="delivery"&&!String(o.address||"").trim())return E("address_required");if(!/^\d{4}-\d{2}-\d{2}$/.test(o.date||""))return E("bad_date");
@@ -202,9 +202,9 @@ function logout(local,msg){if(!local&&S)api({action:"logout",token:S.token});S=n
  ["#app","#tabs","#lo","#detail"].forEach(s=>$(s).classList.add("hidden"));$("#olist").innerHTML="";$("#login").classList.remove("hidden");show("#s1");$("#raOpen").classList.remove("hidden");$("#whoami").textContent="House of Seerbakshanam GK";lmsg(msg||"Logged out.")}
 $("#lo").onclick=()=>logout(false);
 async function start(){if(!S||Date.now()>S.exp)return logout(true,S?"Session expired – please log in again.":"");lmsg("Loading…");const r=await authApi({action:"init"});if(!r.ok){if(S)lmsg("Could not load: "+r.error,1);return}
- INIT=r;if(r.expiresAt&&r.expiresAt!==S.exp){S.exp=r.expiresAt;saveS()}$("#login").classList.add("hidden");["#app","#tabs","#lo"].forEach(s=>$(s).classList.remove("hidden"));$("#whoami").textContent=r.email+" · "+r.role;
+ INIT=r;if(r.expiresAt&&r.expiresAt!==S.exp){S.exp=r.expiresAt;saveS()}$("#login").classList.add("hidden");["#app","#tabs","#lo"].forEach(s=>$(s).classList.remove("hidden"));$("#whoami").textContent=r.email+" · "+r.role+(MB()?" · "+MB()+" branch":"");
  clearTimeout(expT);expT=setTimeout(()=>{if(S&&Date.now()>=S.exp)logout(false,"Session expired – please log in again.");else start()},Math.min(MAXT,Math.max(0,S.exp-Date.now())));
- setupFilters();setupNew();$("#pDate").value=$("#dDate").value=r.today;await load()}
+ setupFilters();applyBranch();setupNew();$("#pDate").value=$("#dDate").value=r.today;await load()}
 async function load(){const r=await authApi({action:"listOrders"});if(!S||!INIT)return;if(!r.ok)return toast("Could not load orders: "+r.error);ORD=r.orders;INIT.today=r.today||INIT.today;renderList();if(!$("#prodView").classList.contains("hidden"))renderProd();if(!$("#delView").classList.contains("hidden"))renderDel()}
 
 /* ---------- navigation ---------- */
@@ -278,7 +278,7 @@ $("#detail").addEventListener("click",async e=>{const b=e.target.closest("button
   EDIT.push(nl);renderEdit()}
  else if(b.id==="eSave"){if(!EDIT.length)return toast("An order needs at least one item");b.disabled=true;
   const lines=EDIT.map(l=>{const a=l.newAmt===undefined||l.newAmt===""?undefined:Number(l.newAmt);return l.keep!==undefined?{keep:l.keep,qty:l.qty,amount:a}:{name:l.name,mode:l.mode,grams:l.grams,size:l.size,qty:l.qty,amount:a}});
-  const r=await authApi({action:"updateItems",orderNo:CUR.no,lines});b.disabled=false;if(!r.ok)return toast(r.error==="needs_edit"?"Edit access required":"Not saved: "+r.error);toast("Items saved, total "+inr(r.total||0));await reopen()}
+  const r=await authApi({action:"updateItems",orderNo:CUR.no,lines});b.disabled=false;if(!r.ok)return toast(r.error==="needs_edit"?"Edit access required":r.error==="forbidden_branch"?"This order belongs to another branch":"Not saved: "+r.error);toast("Items saved, total "+inr(r.total||0));await reopen()}
  else if(b.id==="reqEdit"){b.disabled=true;const r=await authApi({action:"requestEdit",orderNo:CUR.no});toast(r.message||(r.ok?"Request sent":"Not sent: "+r.error))}
  else if(b.id==="ackWa"){const w=window.open("","_blank");b.disabled=true;const r=await authApi({action:"ackWhatsApp",orderNo:CUR.no});b.disabled=false;
   if(!r.ok){if(w)w.close();return toast("Not sent: "+r.error)}if(w)w.location.href=r.url;else location.href=r.url;Object.assign(CUR,{ackChannel:"WhatsApp",ackBy:S.email,ackAt:Date.now()});renderDetail();toast("WhatsApp opened – press Send")}
@@ -296,9 +296,13 @@ $("#detail").addEventListener("click",async e=>{const b=e.target.closest("button
 
 /* ---------- new order ---------- */
 const NEW={source:"WhatsApp",branch:"Coimbatore",type:"pickup",cart:[],sel:null};
+/* branch manager (role manager + Branch): only their branch – server enforces too (forbidden_branch) */
+const MB=()=>INIT&&INIT.role==="manager"&&INIT.branch||"";
+function applyBranch(){const b=MB();["#fBranch","#pBranch","#dBranch"].forEach(id=>{const el=$(id);if(!el)return;el.value=b;(el.closest("div")&&el.closest("div").querySelector("label")&&id!=="#fBranch"?el.closest("div"):el).classList.toggle("hidden",!!b)});
+ $("#nBranch").classList.toggle("hidden",!!b);const lb=$("#nBranch").previousElementSibling;if(lb&&lb.tagName==="LABEL")lb.classList.toggle("hidden",!!b);if(b)NEW.branch=b;else if(!INIT.branches||INIT.branches.indexOf(NEW.branch)<0)NEW.branch="Coimbatore"}
 function seg(el,opts,key,cb){$(el).innerHTML=opts.map(([v,t])=>`<button type="button" data-v="${esc(v)}" class="${NEW[key]===v?"on":""}">${esc(t)}</button>`).join("");$(el).onclick=e=>{const b=e.target.closest("button");if(!b)return;NEW[key]=b.dataset.v;$$(el+" button").forEach(x=>x.classList.toggle("on",x===b));cb&&cb()}}
 function setupNew(){seg("#nSource",["WhatsApp","Phone","Walk-in","Other"].map(x=>[x,x]),"source");
- seg("#nBranch",[["Coimbatore","Coimbatore"],["Chennai","Chennai (+10%)"]],"branch",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){NEW.type="delivery";setupType()}updNew()});setupType();
+ seg("#nBranch",[["Coimbatore","Coimbatore"],["Chennai","Chennai (+10%)"]].filter(x=>!MB()||x[0]===MB()),"branch",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){NEW.type="delivery";setupType()}updNew()});setupType();
  $("#nOutlet").innerHTML=INIT.outlets.map(o=>`<option>${esc(o)}</option>`).join("");$("#nDate").value=INIT.today;$("#nDate").min=INIT.today;renderPick();updNew()}
 function setupType(){seg("#nType",[["pickup","🏬 Pickup at outlet"],["delivery","🛵 Delivery"]],"type",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){toast("Chennai is delivery only");NEW.type="delivery";setupType()}updNew()});updNew()}
 function updNew(){$("#pickupBox").classList.toggle("hidden",NEW.type!=="pickup");$("#delBox").classList.toggle("hidden",NEW.type!=="delivery");$("#rateNote").textContent=NEW.branch==="Chennai"?"Chennai rates (Coimbatore × 1.10)":"Coimbatore rates";renderPick();renderCfg();renderCart()}
