@@ -26,7 +26,8 @@ textarea{min-height:64px}label{display:block;font-size:13px;color:var(--mut);mar
 .call{background:var(--plum);color:var(--gold)}.wa{background:#25d366;color:#053}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--plum);display:grid;grid-template-columns:repeat(4,1fr);border-top:3px solid var(--gold);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
 nav.tabs button{background:transparent;color:var(--cream);border-radius:0;min-height:60px;font-size:12px;padding:4px}nav.tabs button b{display:block;font-size:20px}nav.tabs button.on{color:var(--gold);background:#5c2348}
-.sheet{position:fixed;inset:0;background:var(--cream);z-index:40;overflow-y:auto;padding-bottom:30px}
+.sheet{position:fixed;inset:0;background:var(--cream);z-index:40;overflow-y:auto;padding-bottom:30px}body:has(#testbar) .sheet{top:29px}body.d-open{overflow:hidden}
+.fe label{margin-top:8px}.fe .ro{font-size:13px;color:var(--mut);margin:6px 0}.fe textarea{min-height:60px}.fe .acts{display:flex;gap:8px;margin-top:12px;position:sticky;bottom:0;background:#fff;padding:8px 0}.fe .acts button{flex:1}#dEdit{float:right;margin:0 0 6px 8px}
 .sheet .bar{position:sticky;top:0;background:var(--plum);color:var(--gold);display:flex;align-items:center;gap:8px;padding:8px;z-index:2}.sheet .bar button{background:transparent;border:1px solid var(--gold);color:var(--gold)}
 table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}th,td{border:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}th{background:var(--plum);color:var(--cream);font-weight:600}td.n{text-align:right;white-space:nowrap}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
@@ -61,8 +62,9 @@ h3{color:var(--maroon);margin:14px 0 6px;font-size:16px}
  #filters select,#q{min-height:38px;padding:6px 8px;font-size:14px}
  .otab{font-size:13px;background:#fff;margin-top:8px}.otab th{position:sticky;top:var(--dtop,60px);z-index:1;font-size:12px;padding:5px 6px}.otab td{padding:5px 6px;vertical-align:top}
  .otab tr.oc:hover td{background:#fff7e6}.otab tr.oc.sel td{background:#fde9c4}.otab .chip{margin:0;font-size:11px;padding:1px 7px}.otab td.it{font-size:12px;color:#444}
- body.md-open #ordersView{max-width:none;margin:0 calc(min(600px,44vw) + 6px) 0 0}
- body.md-open #detail{position:fixed;top:var(--dtop,60px);left:auto;right:0;bottom:63px;width:min(600px,44vw);border-left:3px solid var(--gold);box-shadow:-4px 0 14px rgba(0,0,0,.12);z-index:25}
+ /* full-screen order view on desktop: whole viewport, two columns (details+items | status/payment/ack) */
+ #detail>.wrap{max-width:1400px;padding:14px 20px}#detail .dgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+ #detail .dcol2{position:sticky;top:60px}#detail .bar{padding:10px 20px}#detail .bar b{font-size:17px}.fe .grid2x{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 }
 </style></head><body>
 <div id="mockbar" class="mock hidden">DEMO MODE – fake data, nothing is saved</div>
@@ -190,7 +192,14 @@ function mockApi(){const ALLOW=["demo@example.com","staff@example.com","pravin@e
     const ord={no,branch:o.branch,time:Date.now(),name:o.name,email:String(o.email||"").trim(),phone:String(o.phone||"").replace(/[^\d+]/g,""),type:o.type==="delivery"?"Home delivery":"Pickup from outlet",delivery:o.type==="delivery",address:o.type==="delivery"?[o.address,o.area,(o.branch==="Chennai"?"Chennai":"Coimbatore")+(o.pin?" – "+o.pin:"")].filter(Boolean).join(", "):o.outlet,
      date:o.date,notes:o.notes||"",status:o.status||"New",payment:"Pending",assignedTo:"",confirmedBy:"",city:"",salesperson:o.salesperson||"",source:o.source,paymentMode:"",amountReceived:null,handledBy:db.email,internalNote:"",slot:o.slot||"",area:o.area||"",pin:o.pin||"",
      lines:ls.map((l,i)=>({item:l.name,unit:l.unit,qty:l.qty,price:l.rate,amount:l.amount,tbc:!!l.tbc,note:cleanNote(o.lines[i].note)}))};recalc(ord);db.orders.push(ord);return{ok:true,orderNo:no,...tt,tbc:ord.tbc}}
-   case"updateOrder":{const x=db.orders.find(z=>z.no===o.orderNo);if(!x)return E("not_found");const ch=[];const map={status:"status",payment:"payment",paymentMode:"paymentMode",amountReceived:"amountReceived",internalNote:"internalNote",assignedTo:"assignedTo"};
+   case"updateOrder":{const x=db.orders.find(z=>z.no===o.orderNo);if(!x)return E("not_found");const ch=[];
+    if(db.branch&&x.branch!==db.branch)return{ok:false,error:"forbidden_branch",message:"This order belongs to another branch."};
+    const DK=["name","phone","type","address","area","pin","city","outlet","date","slot","notes","source","salesperson","branch"];if(DK.some(k=>o[k]!==undefined)){if(db.role==="staff")return{ok:false,error:"needs_edit",code:"needs_edit",message:"Edit access required"};
+     if(o.branch&&o.branch!==x.branch)return E("branch_locked");if(o.name!==undefined&&!String(o.name).trim())return E("name_required");const ph=o.phone===undefined?null:String(o.phone).replace(/[^\d+]/g,"");if(ph&&!/^\+?\d{10,13}$/.test(ph))return E("bad_phone");
+     if(o.date!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(o.date))return E("bad_date");const del=o.type===undefined?x.delivery:o.type==="delivery";if(x.branch==="Chennai"&&!del)return E("chennai_delivery_only");if(del&&o.address!==undefined&&!String(o.address).trim())return E("address_required");
+     for(const k of ["name","date","slot","notes","salesperson","source","area","pin"])if(o[k]!==undefined){x[k]=String(o[k]);ch.push(k)}if(ph!==null){x.phone=ph;ch.push("phone")}
+     if(o.type!==undefined){x.delivery=del;x.type=del?"Home delivery":"Pickup from outlet";ch.push("type")}if(del&&o.address!==undefined)x.address=String(o.address);if(!del&&o.outlet!==undefined){x.address=o.outlet;x.area="";x.pin=""}}
+    if(o.email!==undefined){x.email=String(o.email);ch.push("email")}const map={status:"status",payment:"payment",paymentMode:"paymentMode",amountReceived:"amountReceived",internalNote:"internalNote",assignedTo:"assignedTo"};
     for(const k in map)if(o[k]!==undefined){let v=o[k];if(k==="payment"&&/^partial/i.test(v))v="Partially Paid";if(String(x[map[k]]??"")!==String(v??"")){x[map[k]]=v;ch.push(k)}}x.handledBy=db.email;return{ok:true,changed:ch}}
    case"fillPrice":{const x=db.orders.find(z=>z.no===o.orderNo);if(!x)return E("not_found");const l=x.lines[o.line];if(!l||!l.tbc)return E("line_not_tbc");if(!(+o.amount>0))return E("bad_amount");
     l.unit=l.unit.replace(/\s*\(price TBC\)/i,"")+(o.weight?" ("+o.weight+")":"");l.amount=Math.round(+o.amount);l.price=r2(o.amount/l.qty);l.tbc=false;recalc(x);return{ok:true,total:x.total,subtotal:x.subtotal,gst:x.gst,tbc:x.tbc}}
@@ -270,21 +279,21 @@ $("#olist").onclick=e=>{if(e.target.closest("[data-stop]"))return;const c=e.targ
 
 /* ---------- order detail ---------- */
 let CUR=null;
-function openDetail(no){CUR=ORD.find(o=>o.no===no);if(!CUR)return;renderDetail();$("#detail").classList.remove("hidden");$("#detail").scrollTop=0}
-function closeDetail(){$("#detail").classList.add("hidden");CUR=null;renderList()}
+function openDetail(no){CUR=ORD.find(o=>o.no===no);if(!CUR)return;FE=null;renderDetail();$("#detail").classList.remove("hidden");document.body.classList.add("d-open");$("#detail").scrollTop=0;const bk=$("#dBack");if(bk&&bk.focus)bk.focus({preventScroll:true})}
+function closeDetail(){$("#detail").classList.add("hidden");document.body.classList.remove("d-open");CUR=null;FE=null;renderList()}
 function renderDetail(){const o=CUR;const st=INIT.statuses,ps=INIT.payments,pm=INIT.payModes;
- $("#detail").innerHTML=`<div class="bar"><button id="dBack">← Back</button><b style="flex:1">${esc(o.no)} · ${esc(o.branch)}</b></div><div class="wrap">
- <div class="card"><div class="nm" style="font-size:18px;font-weight:800">${esc(o.name)}</div><div class="meta">${phTxt(o)} · ${esc(o.source)}${o.salesperson?" · 👤 "+esc(o.salesperson):""}</div>
+ $("#detail").innerHTML=`<div class="bar"><button id="dBack">← Back</button><b style="flex:1">${esc(o.no)} · ${esc(o.branch)}</b><span class="msg" style="color:var(--gold);margin:0">Esc to close</span></div><div class="wrap"><div class="dgrid"><div class="dcol">
+ ${FE?feForm(o):""}<div class="card${FE?" hidden":""}" id="dInfo">${CE()?`<button id="dEdit" class="ghost">✏️ Edit details</button>`:""}<div class="nm" style="font-size:18px;font-weight:800">${esc(o.name)}</div><div class="meta">${phTxt(o)} · ${esc(o.source)}${o.salesperson?" · 👤 "+esc(o.salesperson):""}</div>
   <div class="meta">${o.delivery?"🛵 Delivery":"🏬 Pickup"} · <b>${fmtD(o.date)}</b>${o.slot?" · "+esc(o.slot):""}</div><div class="meta">${esc(o.address)}</div>${o.notes?`<div class="meta">📝 ${esc(o.notes)}</div>`:""}
   ${hasPh(o)?`<div class="links"><a class="call" href="tel:${esc(o.phone.replace(/[^\d+]/g,""))}">📞 Call</a><a class="wa" href="https://wa.me/${waNum(o.phone)}" target="_blank" rel="noopener">WhatsApp</a></div>`:""}</div>
  <h3>Items</h3><table><tr><th>Item</th><th>Size</th><th class="n">Qty</th><th class="n">Amount</th></tr>${o.lines.map((l,i)=>`<tr><td>${esc(l.item)}${l.note?`<i class="inote">📝 ${esc(l.note)}</i>`:""}</td><td>${esc(l.unit)}</td><td class="n"><b>${l.qty}</b></td><td class="n">${l.tbc?`<span class="chip tbc">TBC</span>`:inr(l.amount)}</td></tr>${l.tbc&&CE()?`<tr><td colspan="4" style="background:#fff7f7"><div class="grid2"><div><label for="fw${i}">Actual weight (optional)</label><input id="fw${i}" maxlength="30" placeholder="e.g. 620 g"></div><div><label for="fa${i}">Price incl. GST ₹</label><input id="fa${i}" type="number" inputmode="decimal" min="1" placeholder="Line total"></div></div><button class="gold" data-fill="${i}" style="width:100%;margin-top:6px">Save price</button></td></tr>`:""}`).join("")}
-  <tr><td colspan="2">Basic (excl. GST)</td><td class="n">${o.subtotal!=null&&!(o.tbc===o.lines.length)?inr2(o.subtotal):"—"}</td></tr><tr><td colspan="2">GST 5%</td><td class="n">${o.gst!=null&&!(o.tbc===o.lines.length)?inr2(o.gst):"—"}</td></tr><tr><th colspan="2">Total incl. GST</th><th class="n">${totTxt(o)}</th></tr></table>${itemTools(o)}${ackBox(o)}
+  <tr><td colspan="2">Basic (excl. GST)</td><td class="n">${o.subtotal!=null&&!(o.tbc===o.lines.length)?inr2(o.subtotal):"—"}</td></tr><tr><td colspan="2">GST 5%</td><td class="n">${o.gst!=null&&!(o.tbc===o.lines.length)?inr2(o.gst):"—"}</td></tr><tr><th colspan="2">Total incl. GST</th><th class="n">${totTxt(o)}</th></tr></table>${itemTools(o)}${ackBox(o)}</div><div class="dcol dcol2">
  <h3>Status</h3><div class="grid3" id="stBtns">${st.map(s=>`<button class="stbtn ${s===o.status?"on":""}" data-st="${esc(s)}">${esc(s)}</button>`).join("")}</div>
  <h3>Payment</h3><div class="seg" id="payBtns">${ps.map(s=>`<button class="${s===o.payment?"on":""}" data-pay="${esc(s)}">${esc(s==="Partially Paid"?"Partial":s)}</button>`).join("")}</div>
  <label>Payment mode</label><div class="seg" id="pmBtns">${pm.map(s=>`<button class="${s===o.paymentMode?"on":""}" data-pm="${esc(s)}">${esc(s)}</button>`).join("")}</div>
  <div class="grid2"><div><label for="dAmt">Amount received ₹</label><input id="dAmt" type="number" inputmode="decimal" min="0" value="${o.amountReceived??""}"></div><div><label for="dAsg">Assigned to</label><input id="dAsg" maxlength="60" value="${esc(o.assignedTo)}"></div></div>
  <label for="dNote">Internal note (staff only)</label><textarea id="dNote" maxlength="1000">${esc(o.internalNote)}</textarea><button id="dSave" style="width:100%;margin-top:8px">Save details</button>
- <p class="msg">${o.handledBy?"Last handled by "+esc(o.handledBy):""}${o.confirmedBy?" · confirmed by "+esc(o.confirmedBy):""}</p></div>`;
+ <p class="msg">${o.handledBy?"Last handled by "+esc(o.handledBy):""}${o.confirmedBy?" · confirmed by "+esc(o.confirmedBy):""}</p></div></div></div>`;
  $("#dBack").onclick=closeDetail}
 /* ---------- item edit access (editor/owner) + acknowledgement ---------- */
 const CE=()=>!!(INIT&&INIT.canEditItems);let EDIT=null;
@@ -316,6 +325,46 @@ function eAddLine(){const s=ESEL;if(!s||!validSel(s))return toast("Check weight 
  if(pl&&!pl.tbc)nl.amount=pl.amount;EDIT.push(nl);ESEL=null;EQ="";renderEdit();toast("Added "+nl.item)}
 $("#detail").addEventListener("input",e=>{if(!EDIT)return;const t=e.target;if(t.id==="eaQ"){EQ=t.value;if(ESEL){ESEL=null;$("#eCfg").innerHTML=""}$("#ePick").innerHTML=pickHtml(menuMatch(EQ),CUR.branch);return}
  if(!ESEL)return;if(t.id==="ecg")ESEL.grams=Math.round(+t.value||0);else if(t.id==="ecq")ESEL.qty=clampQ(t.value);else if(t.id==="eaNote")ESEL.note=t.value;else return;const a=$("#ecAmt");if(a)a.textContent=eAmtTxt()});
+/* ---------- full order edit (customer, phone, date, address, source, salesperson, notes) – owner/editor/manager; branch is fixed ---------- */
+let FE=null;
+function feStart(){const o=CUR;FE={name:o.name||"",phone:o.phone||"",email:o.email||"",source:o.source||"Website",salesperson:o.salesperson||"",delivery:!!o.delivery,address:o.delivery?o.address||"":"",area:o.area||"",pin:o.pin||"",
+ outlet:!o.delivery&&INIT.outlets.includes(o.address)?o.address:INIT.outlets[0],date:o.date||"",slot:o.slot||"",notes:o.notes||""};renderDetail();const n=$("#fName");if(n)n.focus()}
+function feForm(o){const F=FE,ch=o.branch==="Chennai",srcs=INIT.sources.includes(F.source)?INIT.sources:INIT.sources.concat([F.source]);const v=k=>esc(F[k]??"");
+ return `<div class="card fe" id="feBox"><h3 style="margin-top:0">✏️ Edit order details</h3><p class="ro">Order ${esc(o.no)} · Branch <b>${esc(o.branch)}</b> (branch cannot be changed)</p>
+ <label for="fName">Customer name</label><input id="fName" data-f="name" maxlength="80" required value="${v("name")}">
+ <div class="grid2x"><div><label for="fPhone">Phone (optional)</label><input id="fPhone" data-f="phone" type="tel" inputmode="tel" maxlength="16" placeholder="10-digit mobile" value="${v("phone")}"></div>
+ <div><label for="fEmail">Customer email (optional)</label><input id="fEmail" data-f="email" type="email" inputmode="email" maxlength="120" value="${v("email")}"></div></div>
+ <div class="grid2x"><div><label for="fDate">Required date</label><input id="fDate" data-f="date" type="date" required value="${v("date")}"></div>
+ <div><label for="fSlot">Time slot</label><input id="fSlot" data-f="slot" maxlength="30" placeholder="e.g. 5–6 PM" value="${v("slot")}"></div></div>
+ <div class="grid2x"><div><label for="fSrc">Order source</label><select id="fSrc" data-f="source">${srcs.map(x=>`<option${x===F.source?" selected":""}>${esc(x)}</option>`).join("")}</select></div>
+ <div><label for="fSales">Salesperson</label><input id="fSales" data-f="salesperson" maxlength="40" value="${v("salesperson")}"></div></div>
+ <label>Delivery type</label><div class="seg" id="fType"><button type="button" data-ft="delivery" class="${F.delivery?"on":""}">🛵 Home delivery</button><button type="button" data-ft="pickup" class="${F.delivery?"":"on"}"${ch?" disabled title=\"Chennai: delivery only\"":""}>🏬 Pickup</button></div>
+ ${F.delivery?`<label for="fAddr">Delivery address</label><textarea id="fAddr" data-f="address" maxlength="300">${v("address")}</textarea>
+ <div class="grid2x"><div><label for="fArea">Area</label><input id="fArea" data-f="area" maxlength="80" value="${v("area")}"></div><div><label for="fPin">PIN</label><input id="fPin" data-f="pin" inputmode="numeric" maxlength="6" value="${v("pin")}"></div></div>`
+ :`<label for="fOutlet">Pickup outlet</label><select id="fOutlet" data-f="outlet">${INIT.outlets.map(x=>`<option${x===F.outlet?" selected":""}>${esc(x)}</option>`).join("")}</select>`}
+ <label for="fNotes">Order notes</label><textarea id="fNotes" data-f="notes" maxlength="500">${v("notes")}</textarea>
+ <p class="msg" id="fMsg">Every change is logged with your email, time, old and new value.${o.ackChannel?" This order was already acknowledged – changes are logged; the customer is not re-notified automatically.":""}</p>
+ <div class="acts"><button type="button" class="gold" id="fSave">Save order details</button><button type="button" class="ghost" id="fCancel">Cancel</button></div></div>`}
+function feDiff(){const o=CUR,F=FE,d={},s=x=>String(x??"").trim();
+ [["name","name"],["phone","phone"],["email","email"],["source","source"],["salesperson","salesperson"],["date","date"],["slot","slot"],["notes","notes"]].forEach(([k,ok])=>{if(s(F[k])!==s(o[ok]))d[k]=s(F[k])});
+ const tch=F.delivery!==!!o.delivery;if(tch)d.type=F.delivery?"delivery":"pickup";
+ if(F.delivery){if(tch||s(F.address)!==s(o.address))d.address=s(F.address);if(tch||s(F.area)!==s(o.area))d.area=s(F.area);if(tch||s(F.pin)!==s(o.pin))d.pin=s(F.pin);if(d.address!==undefined||d.pin!==undefined||d.area!==undefined)d.type="delivery"}
+ else if(tch||F.outlet!==o.address){d.outlet=F.outlet;d.type="pickup"}return d}
+function feCheck(d){const F=FE;if(!String(F.name).trim())return "Enter customer name.";const ph=String(F.phone).replace(/[^\d+]/g,"");if(String(F.phone).trim()&&!/^\+?\d{10,13}$/.test(ph))return "Enter a valid mobile number (10 digits) or leave it blank.";
+ if(F.email.trim()&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(F.email.trim()))return "Enter a valid email or leave it blank.";
+ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(F.date||"");const dt=m&&new Date(+m[1],+m[2]-1,+m[3]);if(!m||dt.getMonth()!==+m[2]-1||dt.getDate()!==+m[3])return "Choose a valid date.";
+ if(F.delivery&&!String(F.address).trim())return "Enter the delivery address.";if(F.delivery&&F.pin.trim()&&!/^\d{6}$/.test(F.pin.trim()))return "PIN must be 6 digits.";if(CUR.branch==="Chennai"&&!F.delivery)return "Chennai orders are delivery only.";return ""}
+async function feSave(b){const err=feCheck();const msg=$("#fMsg");if(err){msg.textContent=err;msg.className="msg err";return}const d=feDiff();if(!Object.keys(d).length){FE=null;renderDetail();toast("No changes");return}
+ if(d.phone!==undefined)d.phone=d.phone.replace(/[^\d+]/g,"");b.disabled=true;msg.textContent="Saving…";msg.className="msg";const r=await authApi({action:"updateOrder",orderNo:CUR.no,...d});b.disabled=false;
+ if(!r.ok){msg.textContent="Not saved: "+(r.message||r.error);msg.className="msg err";return}
+ const o=CUR,F=FE;Object.assign(o,{name:F.name.trim(),phone:F.phone.replace(/[^\d+]/g,""),email:F.email.trim(),source:F.source,salesperson:F.salesperson.trim(),date:F.date,slot:F.slot.trim(),notes:F.notes.trim(),delivery:F.delivery,type:F.delivery?"Home delivery":"Pickup from outlet"});
+ if(F.delivery)Object.assign(o,{address:F.address.trim(),area:F.area.trim(),pin:F.pin.trim()});else Object.assign(o,{address:F.outlet,area:"",pin:""});o.handledBy=S.email;FE=null;renderDetail();toast("Details saved ✓")}
+$("#detail").addEventListener("input",e=>{const t=e.target;if(FE&&t.dataset&&t.dataset.f)FE[t.dataset.f]=t.value});
+$("#detail").addEventListener("change",e=>{const t=e.target;if(FE&&t.dataset&&t.dataset.f)FE[t.dataset.f]=t.value});
+$("#detail").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!CUR)return;
+ if(b.id==="dEdit"){feStart();return}if(!FE)return;if(b.id==="fCancel"){FE=null;renderDetail();return}if(b.id==="fSave"){feSave(b);return}
+ if(b.dataset.ft){FE.delivery=b.dataset.ft==="delivery";renderDetail()}});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape"||!CUR||$("#detail").classList.contains("hidden"))return;e.preventDefault();if(FE){FE=null;renderDetail();return}closeDetail()});
 async function reopen(){await load();CUR=ORD.find(x=>x.no===(CUR&&CUR.no))||CUR;EDIT=null;if(CUR)renderDetail()}
 $("#detail").addEventListener("input",e=>{if(!EDIT)return;const t=e.target;if(t.dataset.eq)EDIT[+t.dataset.eq].qty=+t.value;if(t.dataset.ea)EDIT[+t.dataset.ea].newAmt=t.value;if(t.dataset.en)EDIT[+t.dataset.en].note=t.value});
 $("#detail").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b||!CUR)return;
