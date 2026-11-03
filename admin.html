@@ -23,7 +23,7 @@ textarea{min-height:64px}label{display:block;font-size:13px;color:var(--mut);mar
 .chip{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:700;margin:4px 4px 0 0;background:#eee;color:#333}
 .r-owner{background:var(--plum);color:var(--gold)}.r-editor{background:#6a1b9a;color:#fff}.r-manager{background:#00838f;color:#fff}.r-staff{background:#e0e0e0;color:#333}.c-hid{background:#fde2e2;color:#a01010}.c-core{background:#f3e8db;color:var(--plum)}
 .meta{font-size:13px;color:var(--mut);margin-top:2px}.nm{font-weight:700;font-size:15px}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--plum);display:grid;grid-template-columns:repeat(5,1fr);border-top:3px solid var(--gold);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--plum);display:grid;grid-template-columns:repeat(6,1fr);border-top:3px solid var(--gold);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
 nav.tabs button{background:transparent;color:var(--cream);border-radius:0;min-height:60px;font-size:12px;padding:4px}nav.tabs button b{display:block;font-size:20px}nav.tabs button.on{color:var(--gold);background:#5c2348}
 .sheet{position:fixed;inset:0;background:var(--cream);z-index:40;overflow-y:auto;padding-bottom:30px}
 .sheet .bar{position:sticky;top:0;background:var(--plum);color:var(--gold);display:flex;align-items:center;gap:8px;padding:8px;z-index:2}.sheet .bar b{flex:1}.sheet .bar button{background:transparent;border:1px solid var(--gold);color:var(--gold)}
@@ -63,6 +63,10 @@ pre.pv{white-space:pre-wrap;background:#e7f7e7;border:1px solid #9ccc9c;border-r
   <div class="chips" id="mcat" style="margin-top:6px"></div>
   <div class="card" id="mlist"></div>
  </section>
+ <section id="combosView" class="wrap hidden">
+  <div class="card"><div class="row"><h3 class="t">Combos <small class="msg" id="cbCount"></small></h3><button class="gold sm" id="cbAdd" style="flex:0 0 auto">+ New combo</button></div><p class="msg">A combo groups menu items; its price is the sum of the items (Chennai uses the Chennai multiplier). Staff pick combos when taking orders; editing a combo later does not change orders already placed. Owners, editors and managers can also manage combos from GK Orders.</p></div>
+  <div id="cbForm" class="hidden"></div><div id="cbList"></div>
+ </section>
  <section id="listsView" class="wrap hidden"><div id="lists"></div></section>
  <section id="tplView" class="wrap hidden">
   <div class="card"><h3 class="t">Acknowledgement messages</h3><p class="msg">Placeholders (tap to insert): </p><div class="ph" id="phs"></div>
@@ -81,7 +85,7 @@ pre.pv{white-space:pre-wrap;background:#e7f7e7;border:1px solid #9ccc9c;border-r
  </section>
 </main>
 <div id="sheet" class="sheet hidden"></div>
-<nav class="tabs hidden" id="tabs"><button data-v="usersView" class="on"><b>👥</b>Users</button><button data-v="menuView"><b>🍬</b>Menu</button><button data-v="listsView"><b>📝</b>Lists</button><button data-v="tplView"><b>💬</b>Messages</button><button data-v="repView"><b>📊</b>Reports</button></nav>
+<nav class="tabs hidden" id="tabs"><button data-v="usersView" class="on"><b>👥</b>Users</button><button data-v="menuView"><b>🍬</b>Menu</button><button data-v="listsView"><b>📝</b>Lists</button><button data-v="tplView"><b>💬</b>Messages</button><button data-v="repView"><b>📊</b>Reports</button><button data-v="combosView"><b>🎁</b>Combos</button></nav>
 
 <script>
 /* ===== CONFIG (set by build_admin.py) ===== */
@@ -102,7 +106,7 @@ function mockApi(){const ALLOW=["pravin@enmac.in","owner@example.com","staff@exa
  const CORE=["New","Confirmed","In Production","Ready","Out for Delivery","Delivered","Cancelled"];
  const PH=["customer","orderNo","items","total","tbcNote","date","slot","place","address","payment","shop","branch","phone"];
  const DEF={wa_text:"Vanakkam {customer},\n\nThank you for your order with House of Seerbakshanam GK.\nOrder No: {orderNo}\n\n{items}\n\nTotal (incl. GST): {total}{tbcNote}\n{place}\nPayment: {payment}\n\nQuestions? WhatsApp/call us: {shop}\n\nThank you,\nHouse of Seerbakshanam GK",email_subject:"Order {orderNo} confirmed – House of Seerbakshanam GK",email_body:""};
- const db={otp:null,tok:localStorage.getItem("gk_mock_tok"),email:localStorage.getItem("gk_mock_email")||"pravin@enmac.in",
+ const db={combos:[{name:"Diwali Box (demo)",items:[{n:"Mysurpa",q:0.25},{n:"Adirasam",q:0.25},{n:"Boli",q:2}],active:true}],otp:null,tok:localStorage.getItem("gk_mock_tok"),email:localStorage.getItem("gk_mock_email")||"pravin@enmac.in",
   users:[{email:"pravin@enmac.in",role:"owner",note:"Owner",branch:"",sessions:1},{email:"staff@example.com",role:"staff",note:"Counter",branch:"",sessions:2},{email:"manager@example.com",role:"manager",note:"Chennai",branch:"Chennai",sessions:1},{email:"editor@example.com",role:"editor",note:"",branch:"",sessions:0},{email:"owner@example.com",role:"owner",note:"Partner",branch:"",sessions:0}],
   requests:[{id:"AR-0123456789abcdef",time:Date.now()-3*36e5,email:"new.person@example.com",name:"Divya R",note:"Guruvayur outlet counter",kind:"access",expired:false,currentRole:""},{id:"ER-0123456789abcdee",time:Date.now()-36e5,email:"staff@example.com",name:"",note:"Edit order GK-0102",kind:"edit",expired:false,currentRole:"staff"}],
   menu:[{name:"Mysurpa",category:"Sweets",unit:"kg",price:900,sizes:[],small:false,subtitle:"",billCode:"99",hidden:false,sort:1},{name:"Adirasam",category:"Sweets",unit:"kg",price:880,sizes:[],small:true,subtitle:"",billCode:"28",hidden:false,sort:2},
@@ -178,6 +182,7 @@ function mockApi(){const ALLOW=["pravin@enmac.in","owner@example.com","staff@exa
     for(const k in t)if(t[k]!==db.tpl[k]){aud("template "+k,k,db.tpl[k],t[k]);db.tpl[k]=t[k]}const v=vars(sample);return{ok:true,templates:{...db.tpl},preview:{wa:render(db.tpl.wa_text||DEF.wa_text,v)}}}
    case"adminPreview":{if(o.orderNo){const x=db.orders.find(z=>z.no===String(o.orderNo).toUpperCase());if(!x)return E("not_found");return{ok:true,orderNo:x.no,vars:vars(x)}}return{ok:true,orderNo:sample.no,vars:vars(sample)}}
    case"adminReport":return report(o);
+   case"comboList":return{ok:true,combos:acMockCombos(db),canEditCombos:true};case"comboSave":return acMockSave(db,o,aud);case"comboDelete":{const i=db.combos.findIndex(x=>x.name.toLowerCase()===String(o.name||"").toLowerCase());if(i<0)return E("combo_not_found");aud("combo delete",db.combos[i].name,"","");db.combos.splice(i,1);return{ok:true}}
    case"adminAudit":return{ok:true,audit:db.audit.slice(0,o.limit||100)}}
   return E("unknown_action")}}
 const mock=MOCK?mockApi():null;
@@ -205,7 +210,7 @@ $("#lo").onclick=()=>logout(false);$("#lo2").onclick=()=>logout(false);
 async function start(){if(!S||Date.now()>S.exp)return logout(true,S?"Session expired – please log in again.":"");lmsg("Loading…");const r=await authApi({action:"adminInit"});if(!r.ok){if(S&&r.error!=="owner_required")lmsg("Could not load: "+errText(r),1);return}
  D=r;$("#login").classList.add("hidden");$("#denied").classList.add("hidden");["#app","#tabs","#lo","#auditBtn"].forEach(s=>$(s).classList.remove("hidden"));$("#whoami").textContent=r.email+" · owner";
  clearTimeout(expT);expT=setTimeout(()=>{if(S&&Date.now()>=S.exp)logout(false,"Session expired – please log in again.")},Math.min(2e9,Math.max(0,S.exp-Date.now())));
- if(r.seeded&&r.seeded.length)toast("Created tabs: "+r.seeded.join(", "));renderUsers();renderMenu();renderLists();initTpl();initRep()}
+ if(r.seeded&&r.seeded.length)toast("Created tabs: "+r.seeded.join(", "));renderUsers();renderMenu();renderLists();initTpl();initRep();acLoad()}
 $$("#tabs button").forEach(b=>b.onclick=()=>{$$("#tabs button").forEach(x=>x.classList.toggle("on",x===b));$$("main>section").forEach(s=>s.classList.toggle("hidden",s.id!==b.dataset.v));scrollTo(0,0)});
 const busy=async(btn,p)=>{if(btn)btn.disabled=true;try{return await p}finally{if(btn)btn.disabled=false}};
 const confirmOk=t=>MOCK&&window.__autoConfirm!==undefined?window.__autoConfirm:confirm(t);
@@ -320,6 +325,41 @@ function csv(k){if(!REP)return;const rows=REP[k];if(!rows||!rows.length)return t
 $("#auditBtn").onclick=async()=>{const sh=$("#sheet");sh.classList.remove("hidden");sh.innerHTML='<div class="bar"><button id="xClose">‹ Back</button><b>Audit (admin changes)</b></div><div class="wrap"><p class="msg">Loading…</p></div>';$("#xClose").onclick=()=>sh.classList.add("hidden");
  const r=await authApi({action:"adminAudit",limit:200});if(!r.ok)return;sh.querySelector(".wrap").innerHTML=r.audit.length?r.audit.map(a=>`<div class="card"><div class="nm">${esc(a.action)} <small class="meta">${esc(a.item)}</small></div><div class="meta">${fmtT(a.time)} · ${esc(a.email)}</div>
   ${a.old?`<div class="meta"><b>Before:</b> ${esc(String(a.old).slice(0,400))}</div>`:""}${a.new?`<div class="meta"><b>After:</b> ${esc(String(a.new).slice(0,400))}</div>`:""}</div>`).join(""):'<p class="msg">No admin changes yet.</p>'};
+
+/* ---------- Combos (owner admin; same comboList/comboSave/comboDelete API as GK Orders) ---------- */
+let ACB={list:[],ed:null,q:""};
+const acFlat=()=>{const o=[];(D.menu||[]).forEach(m=>{if(m.sizes&&m.sizes.length)m.sizes.forEach(z=>o.push({n:m.name+" – "+z.size,u:m.unit,p:+z.price}));else o.push({n:m.name,u:m.unit,p:+m.price})});return o};
+const acComp=n=>acFlat().find(x=>x.n===n);
+const acCalc=(items,br)=>{const mu=+(D.settings&&D.settings.chennaiMult)||1.1;let s=0;const parts=[];items.forEach(i=>{const m=acComp(i.n);if(!m)return;s+=(br==="Chennai"?Math.round(m.p*mu):m.p)*(+i.q||0);parts.push(i.n+" "+String(+(+i.q).toFixed(3))+" "+m.u)});return{price:Math.round(s),breakup:parts.join(", ")}};
+const AC_ERR={combo_name_required:"Enter a combo name",combo_name_is_menu_item:"That name is already a menu item",combo_no_items:"Add at least one item",combo_too_many_items:"Too many items",unknown_item:"An item is not in the menu",combo_duplicate_item:"An item is listed twice",bad_qty:"Check the quantities (kg > 0, pieces whole numbers)",combo_name_taken:"A combo with that name already exists",combo_not_found:"Combo not found – reload"};
+async function acLoad(){const r=await authApi({action:"comboList"});if(r.ok){ACB.list=r.combos||[];renderCombos()}else $("#cbList").innerHTML='<p class="msg err">Could not load combos: '+esc(errText(r))+"</p>"}
+function renderCombos(){const L=ACB.list;$("#cbCount").textContent="("+L.length+")";
+ $("#cbList").innerHTML=L.length?L.map((c,i)=>`<div class="card"><div class="nm">🎁 ${esc(c.name)}${c.active===false?' <small class="meta">· inactive</small>':""}</div><div class="meta">${esc(String(c.breakup||"").split(" + ").join(", "))}</div>${c.missing&&c.missing.length?'<div class="meta err">Not on menu any more: '+esc(c.missing.join(", "))+"</div>":""}<div class="meta">Coimbatore <b>${inr(c.priceCbe)}</b> · Chennai <b>${inr(c.priceChe)}</b></div>
+ <div class="row" style="margin-top:6px"><button class="sm" data-ace="${i}">Edit</button><button class="sm ghost" data-aca="${i}">${c.active===false?"Activate":"Deactivate"}</button><button class="sm ghost" data-acd="${i}">Delete</button></div></div>`).join(""):'<p class="msg">No combos yet.</p>';renderComboForm()}
+function renderComboForm(){const f=$("#cbForm");if(!ACB.ed){f.classList.add("hidden");f.innerHTML="";return}f.classList.remove("hidden");const d=ACB.ed,q=ACB.q.trim().toLowerCase(),F=q?acFlat().filter(m=>m.n.toLowerCase().includes(q)).slice(0,20):[],a=acCalc(d.items,"Coimbatore"),b=acCalc(d.items,"Chennai");
+ f.innerHTML=`<div class="card"><h3 class="t">${ACB.old?"Edit combo":"New combo"}</h3><label>Name</label><input id="acName" maxlength="60" value="${esc(d.name)}"><label class="row" style="margin-top:6px"><input type="checkbox" id="acAct" style="width:auto" ${d.active!==false?"checked":""}> Active</label>
+ <div id="acItems">${d.items.map((it,i)=>{const m=acComp(it.n);return`<div class="row" style="margin-top:6px"><div style="flex:1"><b>${esc(it.n)}</b><div class="meta">${m?inr(m.p)+"/"+esc(m.u):"not on menu"}</div></div><input type="number" inputmode="decimal" data-acq="${i}" value="${it.q}" step="${m&&m.u==="kg"?"0.05":"1"}" style="width:90px"><small>${m?esc(m.u):""}</small><button class="sm ghost" data-acx="${i}">✕</button></div>`}).join("")||'<p class="msg">No items yet.</p>'}</div>
+ <label>Add item</label><input type="search" id="acQ" value="${esc(ACB.q)}" placeholder="Search menu…" autocomplete="off"><div id="acPick">${F.map(m=>`<button class="sm ghost" style="width:100%;margin-top:4px;text-align:left" data-acn="${esc(m.n)}">${esc(m.n)} · ${inr(m.p)}/${esc(m.u)}</button>`).join("")}</div>
+ <p>Coimbatore <b id="acPc">${inr(a.price)}</b> · Chennai <b id="acPh">${inr(b.price)}</b><br><small class="meta" id="acBrk">${esc(a.breakup)}</small></p><p class="msg err" id="acErr"></p>
+ <div class="row"><button id="acSave">Save combo</button><button class="ghost" id="acCancel">Cancel</button></div></div>`;
+ if(ACB.fq){const x=$("#acQ");x.focus();ACB.fq=false}}
+const acKeep=()=>{if(!ACB.ed)return;ACB.ed.name=$("#acName").value;ACB.ed.active=$("#acAct").checked};
+document.addEventListener("click",async e=>{const t=e.target.closest&&e.target.closest("button");if(!t||!t.closest("#combosView"))return;const L=ACB.list;
+ if(t.id==="cbAdd"){ACB.ed={name:"",items:[],active:true};ACB.old=null;ACB.q="";return renderComboForm()}
+ if(t.dataset.ace!==undefined){const c=L[+t.dataset.ace];ACB.ed={name:c.name,active:c.active!==false,items:c.items.map(i=>({n:i.n,q:i.q}))};ACB.old=c.name;ACB.q="";renderComboForm();return $("#cbForm").scrollIntoView({block:"start"})}
+ if(t.id==="acCancel"){ACB.ed=null;return renderComboForm()}
+ if(t.dataset.acn!==undefined){acKeep();const m=acComp(t.dataset.acn),ex=ACB.ed.items.find(i=>i.n===t.dataset.acn);if(ex)ex.q=m&&m.u==="kg"?+(+ex.q+0.25).toFixed(3):+ex.q+1;else ACB.ed.items.push({n:t.dataset.acn,q:m&&m.u==="kg"?0.25:1});ACB.q="";ACB.fq=true;return renderComboForm()}
+ if(t.dataset.acx!==undefined){acKeep();ACB.ed.items.splice(+t.dataset.acx,1);return renderComboForm()}
+ if(t.id==="acSave"){acKeep();const d=ACB.ed;if(!d.name.trim())return $("#acErr").textContent=AC_ERR.combo_name_required;if(!d.items.length)return $("#acErr").textContent=AC_ERR.combo_no_items;
+  const r=await authApi({action:"comboSave",combo:{name:d.name.trim(),items:d.items.map(i=>({n:i.n,q:+i.q})),active:d.active},oldName:ACB.old||undefined});if(!r.ok)return $("#acErr").textContent=AC_ERR[r.error]||errText(r);ACB.ed=null;toast("Combo saved");return acLoad()}
+ if(t.dataset.aca!==undefined){const c=L[+t.dataset.aca];const r=await authApi({action:"comboSave",combo:{name:c.name,items:c.items.map(i=>({n:i.n,q:i.q})),active:c.active===false},oldName:c.name});if(!r.ok)return toast(AC_ERR[r.error]||errText(r));return acLoad()}
+ if(t.dataset.acd!==undefined){const c=L[+t.dataset.acd];if(!confirm("Delete combo “"+c.name+"”? Orders already placed keep their breakup."))return;const r=await authApi({action:"comboDelete",name:c.name});if(!r.ok)return toast(AC_ERR[r.error]||errText(r));toast("Combo deleted");return acLoad()}});
+document.addEventListener("input",e=>{const t=e.target;if(!ACB.ed||!t.closest||!t.closest("#cbForm"))return;if(t.id==="acQ"){acKeep();ACB.q=t.value;ACB.fq=true;renderComboForm()}else if(t.dataset.acq!==undefined){ACB.ed.items[+t.dataset.acq].q=t.value===""?0:+t.value;const a=acCalc(ACB.ed.items,"Coimbatore"),b=acCalc(ACB.ed.items,"Chennai");$("#acPc").textContent=inr(a.price);$("#acPh").textContent=inr(b.price);$("#acBrk").textContent=a.breakup}});
+function acMockCombos(db){const mu=db.mult||1.1,flat=[];db.menu.forEach(m=>{if(m.sizes&&m.sizes.length)m.sizes.forEach(z=>flat.push({n:m.name+" – "+z.size,u:m.unit,p:+z.price}));else flat.push({n:m.name,u:m.unit,p:+m.price})});
+ return db.combos.map(c=>{let a=0,b=0;const parts=[],miss=[];c.items.forEach(i=>{const m=flat.find(x=>x.n===i.n);if(!m)return miss.push(i.n);a+=m.p*i.q;b+=Math.round(m.p*mu)*i.q;parts.push(i.n+" "+i.q+" "+m.u)});return{name:c.name,items:c.items.map(i=>({...i})),active:c.active!==false,priceCbe:Math.round(a),priceChe:Math.round(b),breakup:parts.join(" + "),missing:miss}})}
+function acMockSave(db,o,aud){const c=o.combo||{},nm=String(c.name||"").trim();if(!nm)return{ok:false,error:"combo_name_required"};if(db.menu.some(m=>m.name.toLowerCase()===nm.toLowerCase()))return{ok:false,error:"combo_name_is_menu_item"};if(!(c.items||[]).length)return{ok:false,error:"combo_no_items"};
+ if(c.items.some(i=>!(+i.q>0)))return{ok:false,error:"bad_qty"};const old=o.oldName?db.combos.findIndex(x=>x.name.toLowerCase()===String(o.oldName).toLowerCase()):-1;if(o.oldName&&old<0)return{ok:false,error:"combo_not_found"};const dup=db.combos.findIndex(x=>x.name.toLowerCase()===nm.toLowerCase());if(dup>=0&&dup!==old)return{ok:false,error:"combo_name_taken"};
+ const rec={name:nm,items:c.items.map(i=>({n:i.n,q:+i.q})),active:c.active!==false};if(old>=0)db.combos[old]=rec;else db.combos.push(rec);aud(old>=0?"combo update":"combo create",nm,"",JSON.stringify(rec.items));return{ok:true}}
 
 fillEmail();if(S)start();else if(!MOCK&&(!API_URL||API_URL.startsWith("__")))lmsg("API_URL not configured – use the built admin-test/ or admin-live/ copy.",1);
 </script></body></html>
