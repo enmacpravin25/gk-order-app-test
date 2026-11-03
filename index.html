@@ -271,21 +271,42 @@ const CE=()=>!!(INIT&&INIT.canEditItems);let EDIT=null;
 const fmtT=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit",timeZone:"Asia/Kolkata"})+" IST":"";
 function itemTools(o){if(!CE())return `<p class="msg" id="lockNote">🔒 Changing items of a saved order needs edit access.</p><button id="reqEdit" class="ghost" style="width:100%">Request edit access</button>`;
  return `<button id="eItems" class="ghost" style="width:100%;margin-top:6px">✏️ Edit items</button><div id="eBox"></div>`}
-function renderEdit(){if(!EDIT){$("#eBox").innerHTML="";return}const opts=INIT.menu.map(m=>`<option>${esc(m.n)}</option>`).join("");
+function renderEdit(){if(!EDIT){$("#eBox").innerHTML="";ESEL=null;EQ="";return}
  $("#eBox").innerHTML=`<div class="card">${EDIT.map((l,i)=>`<div class="grid3" style="align-items:end"><div><b>${esc(l.item)}</b><br><small>${esc(l.unit)}</small></div><div><label>Qty</label><input data-eq="${i}" type="number" inputmode="numeric" min="1" max="500" value="${l.qty}"></div><div><label>Line ₹ incl. GST</label><input data-ea="${i}" type="number" min="0" placeholder="${l.tbc?"TBC":l.amount}" value="${l.newAmt??""}"></div></div><label>Item note</label><input data-en="${i}" maxlength="120" placeholder="e.g. 2 suthu" value="${esc(l.note||"")}">${qnChips(`data-enc="${i}" data-q`)}<button class="ghost" data-erm="${i}">✕ Remove ${esc(l.item)}</button>`).join("")}
- <h3>Add item</h3><select id="eaName">${opts}</select><div class="grid3"><div><label for="eaSize">Size/grams</label><input id="eaSize" placeholder="500 or Medium"></div><div><label for="eaQty">Qty</label><input id="eaQty" type="number" min="1" value="1"></div><div><label><input type="checkbox" id="eaPc"> pieces (TBC)</label></div></div><label for="eaNote">Item note (optional)</label><input id="eaNote" maxlength="120" placeholder="e.g. 2 suthu">
- <button class="ghost" id="eaAdd" style="width:100%">+ Add line</button><button class="gold" id="eSave" style="width:100%;margin-top:8px">Save items</button><p class="msg">Every item change is logged with your email, time, before and after.</p></div>`}
+ <h3>Add item</h3><input type="search" id="eaQ" placeholder="Search item… (e.g. mysurpa)" aria-label="Search item to add" autocomplete="off" value="${esc(EQ)}"><div class="pick" id="ePick">${ESEL?"":pickHtml(menuMatch(EQ),CUR.branch)}</div><div id="eCfg">${eCfgHtml()}</div>
+ <button class="gold" id="eSave" style="width:100%;margin-top:8px">Save items</button><p class="msg">Every item change is logged with your email, time, before and after.</p></div>`}
 function ackBox(o){const done=o.ackChannel?`<span class="chip p-Paid">Acknowledged ✓ via ${esc(o.ackChannel)}${o.ackAt?" at "+esc(fmtT(o.ackAt)):""}${o.ackBy?" by "+esc(o.ackBy):""}</span>`:'<span class="chip unack" style="background:#e3f2fd;color:#0d47a1">Unacknowledged</span>';
  return `<h3>Acknowledgement</h3><div>${done}</div><button id="ackWa" class="gold" style="width:100%;margin-top:6px">📲 Send acknowledgement (WhatsApp)</button>${o.email?`<button id="ackEm" class="ghost" style="width:100%;margin-top:6px">✉️ Email acknowledgement to ${esc(o.email)}</button>`:""}<p class="msg">WhatsApp opens with the message ready – press Send there (automatic sending needs the WhatsApp Business API).</p>`}
+let ESEL=null,EQ="";
+/* config panel for adding a line to a saved order (same choices/pricing as the new-order screen, priced at the order's branch) */
+function eCfgHtml(){const s=ESEL;if(!s||!CUR)return "";const it=INIT.menu.find(m=>m.n===s.name),br=CUR.branch;let h=`<div class="cfg"><b>${esc(it.n)}</b> <span class="msg">${itemPrice(it,br)} incl. GST${br==="Chennai"?" · Chennai rate":""}</span>`;
+ if(it.u==="kg"){const opts=[[250,"250g"],[500,"500g"],[1000,"1Kg"],["c","Custom g"],["pc","Pieces"]];const cur=s.mode==="pc"?"pc":[250,500,1000].includes(s.grams)&&!s.custom?s.grams:"c";
+  h+=`<div class="seg" style="margin-top:8px">${opts.map(([v,t])=>`<button type="button" data-ew="${v}" class="${String(cur)===String(v)?"on":""}">${t}</button>`).join("")}</div>`;
+  if(cur==="c")h+=`<label for="ecg">Grams (min ${it.sm?30:250})</label><input id="ecg" type="number" inputmode="numeric" min="${it.sm?30:250}" max="50000" value="${s.grams}">`;
+  if(s.mode==="pc")h+=`<p class="msg">Pieces – price to be confirmed (enter it in "Line ₹" after adding, or fill later).</p>`}
+ if(it.v)h+=`<label>Size</label><div class="seg">${it.v.map(v=>`<button type="button" data-esz="${esc(v[0])}" class="${s.size===v[0]?"on":""}">${esc(v[0])} ${inr(rateFor(v[1],br))}</button>`).join("")}</div>`;
+ h+=`<label for="ecq">${s.mode==="pc"?"Pieces":it.u==="kg"?"Packs":"Quantity"}</label><div class="row"><button type="button" class="ghost" data-eqs="-1" aria-label="Less">−</button><input id="ecq" type="number" inputmode="numeric" min="1" max="500" value="${s.qty}" style="text-align:center"><button type="button" class="ghost" data-eqs="1" aria-label="More">+</button></div>
+  <label for="eaNote">Item note (optional)</label><input id="eaNote" maxlength="120" placeholder="e.g. 2 suthu" value="${esc(s.note||"")}">${qnChips(`data-ecn="1" data-q`)}
+  <div class="row" style="margin-top:8px"><span class="msg" id="ecAmt">${eAmtTxt()}</span><button type="button" class="gold" id="eaAdd">Add</button><button type="button" class="ghost" id="eaCancel">Close</button></div></div>`;return h}
+function eAmtTxt(){const pl=ESEL&&validSel(ESEL)?priceLine(ESEL,CUR.branch):null;return pl?(pl.tbc?"Price TBC":pl.desc+" = "+inr(pl.amount)):"Enter a valid weight"}
+function eRefresh(){const c=$("#eCfg"),p=$("#ePick");if(c)c.innerHTML=eCfgHtml();if(p)p.innerHTML=ESEL?"":pickHtml(menuMatch(EQ),CUR.branch)}
+function ePickItem(n){const it=INIT.menu.find(m=>m.n===n);if(!it)return;ESEL={name:it.n,mode:it.u==="kg"?"g":"qty",grams:500,qty:1,size:it.v?it.v[0][0]:null,note:""};eRefresh();const c=$("#eCfg");if(c&&c.scrollIntoView)c.scrollIntoView({block:"nearest"})}
+function eAddLine(){const s=ESEL;if(!s||!validSel(s))return toast("Check weight / quantity");s.qty=clampQ(s.qty);const it=INIT.menu.find(m=>m.n===s.name),pl=priceLine(s,CUR.branch);
+ const nl={item:it.n,name:it.n,qty:s.qty,unit:"",note:cleanNote(s.note)};if(it.u==="kg"){if(s.mode==="pc"){nl.mode="pc";nl.unit="pcs (price TBC)";nl.tbc=true}else{nl.mode="g";nl.grams=s.grams;nl.unit=wl(s.grams)}}else{nl.mode="qty";if(it.v){nl.size=s.size;nl.item+=" – "+nl.size}nl.unit=it.u}
+ if(pl&&!pl.tbc)nl.amount=pl.amount;EDIT.push(nl);ESEL=null;EQ="";renderEdit();toast("Added "+nl.item)}
+$("#detail").addEventListener("input",e=>{if(!EDIT)return;const t=e.target;if(t.id==="eaQ"){EQ=t.value;if(ESEL){ESEL=null;$("#eCfg").innerHTML=""}$("#ePick").innerHTML=pickHtml(menuMatch(EQ),CUR.branch);return}
+ if(!ESEL)return;if(t.id==="ecg")ESEL.grams=Math.round(+t.value||0);else if(t.id==="ecq")ESEL.qty=clampQ(t.value);else if(t.id==="eaNote")ESEL.note=t.value;else return;const a=$("#ecAmt");if(a)a.textContent=eAmtTxt()});
 async function reopen(){await load();CUR=ORD.find(x=>x.no===(CUR&&CUR.no))||CUR;EDIT=null;if(CUR)renderDetail()}
 $("#detail").addEventListener("input",e=>{if(!EDIT)return;const t=e.target;if(t.dataset.eq)EDIT[+t.dataset.eq].qty=+t.value;if(t.dataset.ea)EDIT[+t.dataset.ea].newAmt=t.value;if(t.dataset.en)EDIT[+t.dataset.en].note=t.value});
 $("#detail").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b||!CUR)return;
- if(b.id==="eItems"){EDIT=EDIT?null:CUR.lines.map((l,i)=>({keep:i,item:l.item,unit:l.unit,qty:l.qty,amount:l.amount,tbc:l.tbc,note:l.note||""}));renderEdit()}
+ if(EDIT&&b.closest("#ePick")){ePickItem(b.dataset.n);return}
+ if(EDIT&&ESEL&&b.closest("#eCfg")){const s=ESEL;if(b.dataset.ew){if(b.dataset.ew==="pc")s.mode="pc";else if(b.dataset.ew==="c"){s.mode="g";s.custom=true}else{s.mode="g";s.custom=false;s.grams=+b.dataset.ew}eRefresh()}
+  else if(b.dataset.esz){s.size=b.dataset.esz;eRefresh()}else if(b.dataset.eqs){s.qty=clampQ((+s.qty||1)+(+b.dataset.eqs));eRefresh()}
+  else if(b.dataset.ecn!==undefined){s.note=b.dataset.q;const n=$("#eaNote");if(n)n.value=s.note}
+  else if(b.id==="eaCancel"){ESEL=null;eRefresh()}else if(b.id==="eaAdd")eAddLine();return}
+ if(b.id==="eItems"){EDIT=EDIT?null:CUR.lines.map((l,i)=>({keep:i,item:l.item,unit:l.unit,qty:l.qty,amount:l.amount,tbc:l.tbc,note:l.note||""}));ESEL=null;EQ="";renderEdit()}
  else if(b.dataset.enc!==undefined){const i=+b.dataset.enc;EDIT[i].note=b.dataset.q;const inp=$(`#eBox [data-en="${i}"]`);if(inp)inp.value=b.dataset.q}
  else if(b.dataset.erm){EDIT.splice(+b.dataset.erm,1);renderEdit()}
- else if(b.id==="eaAdd"){const it=INIT.menu.find(m=>m.n===$("#eaName").value),sz=$("#eaSize").value.trim(),q=Math.max(1,+$("#eaQty").value||1),pc=$("#eaPc").checked;
-  const nl={item:it.n,name:it.n,qty:q,unit:"",note:cleanNote($("#eaNote").value)};if(it.u==="kg"){if(pc){nl.mode="pc";nl.unit="pcs (price TBC)"}else{nl.mode="g";nl.grams=+sz||500;nl.unit=nl.grams+" g"}}else{nl.mode="qty";if(it.v){nl.size=sz||it.v[0][0];nl.item+=" – "+nl.size}nl.unit=it.u}
-  EDIT.push(nl);renderEdit()}
  else if(b.id==="eSave"){if(!EDIT.length)return toast("An order needs at least one item");b.disabled=true;
   const lines=EDIT.map(l=>{const a=l.newAmt===undefined||l.newAmt===""?undefined:Number(l.newAmt);const nt=cleanNote(l.note);return l.keep!==undefined?{keep:l.keep,qty:l.qty,amount:a,note:nt}:{name:l.name,mode:l.mode,grams:l.grams,size:l.size,qty:l.qty,amount:a,note:nt}});
   const r=await authApi({action:"updateItems",orderNo:CUR.no,lines});b.disabled=false;if(!r.ok)return toast(r.error==="needs_edit"?"Edit access required":r.error==="forbidden_branch"?"This order belongs to another branch":"Not saved: "+r.error);toast("Items saved, total "+inr(r.total||0));await reopen()}
@@ -316,9 +337,11 @@ function setupNew(){seg("#nSource",["WhatsApp","Phone","Walk-in","Other"].map(x=
  $("#nOutlet").innerHTML=INIT.outlets.map(o=>`<option>${esc(o)}</option>`).join("");$("#nDate").value=INIT.today;$("#nDate").min=INIT.today;renderPick();updNew()}
 function setupType(){seg("#nType",[["pickup","🏬 Pickup at outlet"],["delivery","🛵 Delivery"]],"type",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){toast("Chennai is delivery only");NEW.type="delivery";setupType()}updNew()});updNew()}
 function updNew(){$("#pickupBox").classList.toggle("hidden",NEW.type!=="pickup");$("#delBox").classList.toggle("hidden",NEW.type!=="delivery");$("#rateNote").textContent=NEW.branch==="Chennai"?"Chennai rates (Coimbatore × 1.10)":"Coimbatore rates";renderPick();renderCfg();renderCart()}
-const itemPrice=it=>it.v?"from "+inr(Math.min(...it.v.map(v=>rateFor(v[1],NEW.branch))))+"/"+it.u:inr(rateFor(it.p,NEW.branch))+"/"+it.u;
-function renderPick(){if(!INIT)return;const q=$("#iq").value.trim().toLowerCase();const L=INIT.menu.filter(it=>!q||(it.n+" "+it.c+" "+(it.s||"")).toLowerCase().includes(q)).slice(0,q?40:12);
- $("#pick").innerHTML=L.map(it=>`<button type="button" data-n="${esc(it.n)}">${esc(it.n)}<span>${itemPrice(it)}</span></button>`).join("")||'<p class="msg" style="padding:8px">No item found</p>'}
+const itemPrice=(it,br=NEW.branch)=>it.v?"from "+inr(Math.min(...it.v.map(v=>rateFor(v[1],br))))+"/"+it.u:inr(rateFor(it.p,br))+"/"+it.u;
+/* shared menu search (new order + edit items): case-insensitive, matches anywhere in name/category/spec; INIT.menu = offered (visible) items only */
+const menuMatch=q=>{q=String(q||"").trim().toLowerCase();return INIT.menu.filter(it=>!q||(it.n+" "+it.c+" "+(it.s||"")).toLowerCase().includes(q)).slice(0,q?40:12)};
+const pickHtml=(L,br)=>L.map(it=>`<button type="button" data-n="${esc(it.n)}">${esc(it.n)}<span>${itemPrice(it,br)}</span></button>`).join("")||'<p class="msg" style="padding:8px">No item found</p>';
+function renderPick(){if(!INIT)return;$("#pick").innerHTML=pickHtml(menuMatch($("#iq").value),NEW.branch)}
 $("#iq").addEventListener("input",renderPick);
 $("#pick").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(NEW.edit!=null){NEW.edit=null;renderCart()}const it=INIT.menu.find(m=>m.n===b.dataset.n);NEW.sel={name:it.n,mode:it.u==="kg"?"g":"qty",grams:500,qty:1,size:it.v?it.v[0][0]:null};renderCfg();$("#cfg").scrollIntoView({block:"nearest"})};
 function renderCfg(){const s=NEW.sel;if(!s){$("#cfg").innerHTML="";return}const it=INIT.menu.find(m=>m.n===s.name);const ed=NEW.edit!=null;let h=`<div class="cfg">${ed?`<small class="msg">Editing line ${NEW.edit+1}</small><br>`:""}<b>${esc(it.n)}</b> <span class="msg">${itemPrice(it)} incl. GST</span>`;
@@ -331,7 +354,7 @@ function renderCfg(){const s=NEW.sel;if(!s){$("#cfg").innerHTML="";return}const 
  h+=`<div class="row" style="margin-top:8px"><div><label for="cq">${s.mode==="pc"?"Pieces":it.u==="kg"?"Packs":"Quantity"}</label><div class="row"><button type="button" class="ghost" data-q="-1">−</button><input id="cq" type="number" inputmode="numeric" min="1" max="500" value="${s.qty}" style="text-align:center"><button type="button" class="ghost" data-q="1">+</button></div></div></div>
   <div class="row" style="margin-top:8px"><span class="msg" id="cfgAmt">${pl?(pl.tbc?"Price TBC":pl.desc+" = "+inr(pl.amount)):"Enter a valid weight"}</span><button type="button" class="gold" id="addL">${ed?"Update":"Add"}</button><button type="button" class="ghost" id="cancelL">${ed?"Cancel":"Close"}</button></div></div>`;
  $("#cfg").innerHTML=h}
-function validSel(){const s=NEW.sel,it=INIT.menu.find(m=>m.n===s.name);return !(it.u==="kg"&&s.mode==="g"&&!(s.grams>=(it.sm?30:250)&&s.grams<=50000))&&s.qty>=1}
+function validSel(s=NEW.sel){const it=INIT.menu.find(m=>m.n===s.name);return !(it.u==="kg"&&s.mode==="g"&&!(s.grams>=(it.sm?30:250)&&s.grams<=50000))&&s.qty>=1}
 $("#cfg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!NEW.sel)return;const s=NEW.sel;
  if(b.dataset.w){if(b.dataset.w==="pc"){s.mode="pc"}else if(b.dataset.w==="c"){s.mode="g";s.custom=true}else{s.mode="g";s.custom=false;s.grams=+b.dataset.w}renderCfg()}
  else if(b.dataset.sz){s.size=b.dataset.sz;renderCfg()}else if(b.dataset.q){s.qty=clampQ((+s.qty||1)+(+b.dataset.q));renderCfg()}
