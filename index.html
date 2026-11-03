@@ -99,7 +99,7 @@ h3{color:var(--maroon);margin:14px 0 6px;font-size:16px}
    <label>Branch</label><div class="seg" id="nBranch"></div>
    <label>Order type</label><div class="seg" id="nType"></div>
    <div id="pickupBox"><label for="nOutlet">Pickup outlet</label><select id="nOutlet"></select></div>
-   <div id="delBox" class="hidden"><label for="nAddr">Address</label><textarea id="nAddr" maxlength="300"></textarea><div class="grid2"><div><label for="nArea">Area</label><input id="nArea" maxlength="80"></div><div><label for="nPin">PIN</label><input id="nPin" inputmode="numeric" maxlength="6"></div></div></div>
+   <div id="delBox" class="hidden"><label for="nAddr">Address (optional)</label><textarea id="nAddr" maxlength="300"></textarea><div class="grid2"><div><label for="nArea">Area</label><input id="nArea" maxlength="80"></div><div><label for="nPin">PIN</label><input id="nPin" inputmode="numeric" maxlength="6"></div></div></div>
    <div class="grid2"><div><label for="nDate">Delivery / pickup date</label><input id="nDate" type="date"></div><div><label for="nSlot">Time slot (optional)</label><input id="nSlot" maxlength="30" placeholder="e.g. 5–6 PM"></div></div>
   </div>
   <div class="card"><h3 style="margin-top:0">Items <small id="rateNote" class="msg"></small></h3>
@@ -127,7 +127,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyECX8GD4mkJdHnKKsUX6mT
 /* ===================================================================================== */
 const MOCK=new URLSearchParams(location.search).get("mock")==="1";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const hasPh=o=>!!String((o&&o.phone)||"").replace(/\D/g,""),phTxt=o=>hasPh(o)?"📞 "+esc(o.phone):"— no phone";
+const hasPh=o=>!!String((o&&o.phone)||"").replace(/\D/g,""),phTxt=o=>String((o&&o.phone)||"").trim()?"📞 "+esc(o.phone):"— no phone";
+const nmH=o=>String((o&&o.name)||"").trim()?esc(o.name):'<i class="msg">(no name)</i>',dTxt=o=>/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")?fmtD(o.date):(o.dateText||o.date?esc(o.dateText||o.date):"no date");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const inr=x=>"₹"+Math.round(x).toLocaleString("en-IN"),inr2=x=>"₹"+(Math.round(x*100)/100).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const r2=x=>Math.round(x*100)/100,wl=g=>g>=1000?(g/1000)+" kg":g+" g";
@@ -186,17 +187,16 @@ function mockApi(){const ALLOW=["demo@example.com","staff@example.com","pravin@e
    case"init":return{ok:true,email:db.email,role:db.role,branch:db.branch||"",branches:db.branch?[db.branch]:["Coimbatore","Chennai"],canEditItems:db.role!=="staff",today,menu,outlets:["Sivananda Colony, Coimbatore","Guruvayur"],statuses:["New","Confirmed","In Production","Ready","Out for Delivery","Delivered","Cancelled"],payments:["Pending","Paid","Partially Paid"],payModes:["Cash","UPI","Card","Bank transfer","Other"],sources:["WhatsApp","Phone","Walk-in","Other","Website"],gstRate:5,chennaiMult:1.1};
    case"listOrders":return{ok:true,today,orders:JSON.parse(JSON.stringify(db.orders.filter(x=>!db.branch||x.branch===db.branch))).sort((a,b)=>b.time-a.time)};
    case"production":return{ok:true,...aggregate(db.orders,o.date,o.branch||null)};
-   case"createOrder":{if(!String(o.name||"").trim())return E("name_required");const ph0=String(o.phone||"").replace(/[^\d+]/g,"");if(ph0&&!/^\+?\d{10,13}$/.test(ph0))return E("bad_phone");if(!o.lines||!o.lines.length)return E("no_items");
-    if(o.branch==="Chennai"&&o.type!=="delivery")return E("chennai_delivery_only");if(o.type==="delivery"&&!String(o.address||"").trim())return E("address_required");if(!/^\d{4}-\d{2}-\d{2}$/.test(o.date||""))return E("bad_date");
+   case"createOrder":{if(!o.lines||!o.lines.length)return E("no_items");if(o.lines.some(l=>l.qty!==undefined&&!(Number(l.qty)>=1&&Number(l.qty)<=500)))return E("bad_qty");
     const ls=o.lines.map(l=>priceLine(l,o.branch));const tt=totals(ls.reduce((a,l)=>a+l.raw,0));const ch=o.branch==="Chennai";const no=ch?"CH-"+String(++db.chn).padStart(4,"0"):"GK-"+String(100+(++db.cbe)).padStart(4,"0");
-    const ord={no,branch:o.branch,time:Date.now(),name:o.name,email:String(o.email||"").trim(),phone:String(o.phone||"").replace(/[^\d+]/g,""),type:o.type==="delivery"?"Home delivery":"Pickup from outlet",delivery:o.type==="delivery",address:o.type==="delivery"?[o.address,o.area,(o.branch==="Chennai"?"Chennai":"Coimbatore")+(o.pin?" – "+o.pin:"")].filter(Boolean).join(", "):o.outlet,
-     date:o.date,notes:o.notes||"",status:o.status||"New",payment:"Pending",assignedTo:"",confirmedBy:"",city:"",salesperson:o.salesperson||"",source:o.source,paymentMode:"",amountReceived:null,handledBy:db.email,internalNote:"",slot:o.slot||"",area:o.area||"",pin:o.pin||"",
+    const ord={no,branch:o.branch,time:Date.now(),name:o.name,email:String(o.email||"").trim(),phone:String(o.phone||"").trim(),type:o.type==="delivery"?"Home delivery":"Pickup from outlet",delivery:o.type==="delivery",address:o.type==="delivery"?[o.address,o.area,(o.branch==="Chennai"?"Chennai":"Coimbatore")+(o.pin?" – "+o.pin:"")].filter(Boolean).join(", "):o.outlet,
+     date:/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")?o.date:"",dateText:/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")?"":String(o.date||""),name:String(o.name||""),notes:o.notes||"",status:o.status||"New",payment:"Pending",assignedTo:"",confirmedBy:"",city:"",salesperson:o.salesperson||"",source:o.source,paymentMode:"",amountReceived:null,handledBy:db.email,internalNote:"",slot:o.slot||"",area:o.area||"",pin:o.pin||"",
      lines:ls.map((l,i)=>({item:l.name,unit:l.unit,qty:l.qty,price:l.rate,amount:l.amount,tbc:!!l.tbc,note:cleanNote(o.lines[i].note)}))};recalc(ord);db.orders.push(ord);return{ok:true,orderNo:no,...tt,tbc:ord.tbc}}
    case"updateOrder":{const x=db.orders.find(z=>z.no===o.orderNo);if(!x)return E("not_found");const ch=[];
     if(db.branch&&x.branch!==db.branch)return{ok:false,error:"forbidden_branch",message:"This order belongs to another branch."};
     const DK=["name","phone","type","address","area","pin","city","outlet","date","slot","notes","source","salesperson","branch"];if(DK.some(k=>o[k]!==undefined)){if(db.role==="staff")return{ok:false,error:"needs_edit",code:"needs_edit",message:"Edit access required"};
-     if(o.branch&&o.branch!==x.branch)return E("branch_locked");if(o.name!==undefined&&!String(o.name).trim())return E("name_required");const ph=o.phone===undefined?null:String(o.phone).replace(/[^\d+]/g,"");if(ph&&!/^\+?\d{10,13}$/.test(ph))return E("bad_phone");
-     if(o.date!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(o.date))return E("bad_date");const del=o.type===undefined?x.delivery:o.type==="delivery";if(x.branch==="Chennai"&&!del)return E("chennai_delivery_only");if(del&&o.address!==undefined&&!String(o.address).trim())return E("address_required");
+     if(o.branch&&o.branch!==x.branch)return E("branch_locked");const ph=o.phone===undefined?null:String(o.phone).trim();
+     const del=o.type===undefined?x.delivery:o.type==="delivery";
      for(const k of ["name","date","slot","notes","salesperson","source","area","pin"])if(o[k]!==undefined){x[k]=String(o[k]);ch.push(k)}if(ph!==null){x.phone=ph;ch.push("phone")}
      if(o.type!==undefined){x.delivery=del;x.type=del?"Home delivery":"Pickup from outlet";ch.push("type")}if(del&&o.address!==undefined)x.address=String(o.address);if(!del&&o.outlet!==undefined){x.address=o.outlet;x.area="";x.pin=""}}
     if(o.email!==undefined){x.email=String(o.email);ch.push("email")}const map={status:"status",payment:"payment",paymentMode:"paymentMode",amountReceived:"amountReceived",internalNote:"internalNote",assignedTo:"assignedTo"};
@@ -259,17 +259,17 @@ function setupFilters(){$("#rng").innerHTML=RANGES.map(([k,t])=>`<button data-r=
 $("#rng").onclick=e=>{const b=e.target.closest("button");if(!b)return;RANGE=b.dataset.r;$$("#rng button").forEach(x=>x.classList.toggle("on",x===b));renderList()};
 $("#ftog").onclick=()=>$("#filters").classList.toggle("hidden");$("#reload").onclick=()=>load();
 ["#q","#fStatus","#fSource","#fBranch","#fPay","#fAck"].forEach(s=>$(s).addEventListener("input",()=>renderList()));
-function inRange(o){const t=INIT.today;if(RANGE==="all")return true;if(RANGE==="today")return o.date===t;if(RANGE==="tomorrow")return o.date===addDays(t,1);return o.date>=t&&o.date<=addDays(t,6)}
+function inRange(o){const t=INIT.today;if(RANGE==="all")return true;if(!o.date)return RANGE!=="tomorrow";if(RANGE==="today")return o.date===t;if(RANGE==="tomorrow")return o.date===addDays(t,1);return o.date>=t&&o.date<=addDays(t,6)}
 function filtered(){const q=$("#q").value.trim().toLowerCase(),qd=q.replace(/\D/g,""),fs=$("#fStatus").value,fo=$("#fSource").value,fb=$("#fBranch").value,fp=$("#fPay").value;
  return ORD.filter(o=>inRange(o)&&(!fs||(fs==="active"?!["Delivered","Cancelled"].includes(o.status):o.status===fs))&&(!fo||o.source===fo)&&(!fb||o.branch===fb)&&(!fp||o.payment===fp)&&(!$("#fAck").value||($("#fAck").value==="no")===!o.ackChannel)&&
-  (!q||o.name.toLowerCase().includes(q)||o.no.toLowerCase().includes(q)||(qd.length>=3&&String(o.phone||"").replace(/\D/g,"").includes(qd))))
-  .sort((a,b)=>RANGE==="all"?(b.time||0)-(a.time||0):(a.date+(a.slot||"")).localeCompare(b.date+(b.slot||"")))}
+  (!q||String(o.name||"").toLowerCase().includes(q)||o.no.toLowerCase().includes(q)||(qd.length>=3&&String(o.phone||"").replace(/\D/g,"").includes(qd))))
+  .sort((a,b)=>RANGE==="all"?(b.time||0)-(a.time||0):((a.date||"9999")+(a.slot||"")).localeCompare((b.date||"9999")+(b.slot||"")))}
 const sCls=s=>"s-"+String(s).split(" ")[0],pCls=p=>"p-"+String(p).split(" ")[0];
 const waNum=p=>{const d=String(p).replace(/\D/g,"");return d.length===10?"91"+d:d};
 const totTxt=o=>o.lines.length&&o.tbc===o.lines.length?"Price TBC":inr(o.total)+(o.tbc?" + TBC":"");
 function sumBox(list){const act=list.filter(o=>o.status!=="Cancelled");return[["Orders",act.length],["Value",inr(act.reduce((a,o)=>a+o.total,0))],["Pay pending",act.filter(o=>o.payment!=="Paid").length],["Price TBC",act.filter(o=>o.tbc).length],["Unacked",act.filter(o=>!o.ackChannel).length]].map(([a,b])=>`<div><b>${b}</b>${a}</div>`).join("")}
 function card(o){return `<div class="card oc" data-o="${esc(o.no)}"><div class="top"><span class="ono">${esc(o.no)}</span><span class="amt">${totTxt(o)}<small style="font-weight:400;color:var(--mut)">${o.tbc===o.lines.length&&o.lines.length?"":" incl. GST"}</small></span></div>
- <div class="nm">${esc(o.name)}</div><div class="meta">${phTxt(o)} · ${o.delivery?"🛵 Delivery":"🏬 Pickup"} · ${fmtD(o.date)}${o.slot?" · "+esc(o.slot):""}</div>
+ <div class="nm">${nmH(o)}</div><div class="meta">${phTxt(o)} · ${o.delivery?"🛵 Delivery":"🏬 Pickup"} · ${dTxt(o)}${o.slot?" · "+esc(o.slot):""}</div>
  <div class="meta">${o.delivery?"📍 ":"🏬 "}${esc(o.address)}</div><div class="its">${esc(o.lines.map(l=>l.item+" · "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?" × "+l.qty:""):l.qty+" "+l.unit.replace(/\s*\(price TBC\)/i,""))+(l.tbc?" (TBC)":"")+noteSfx(l)).join("\n")||o.itemsText)}</div>
  <div><span class="chip ${sCls(o.status)}">${esc(o.status)}</span><span class="chip ${pCls(o.payment)}">${esc(o.payment)}${o.paymentMode?" · "+esc(o.paymentMode):""}</span>${o.tbc?'<span class="chip tbc">Price TBC</span>':""}${!o.ackChannel&&o.status!=="Cancelled"?'<span class="chip unack" style="background:#e3f2fd;color:#0d47a1">Unacknowledged</span>':""}<span class="chip src">${esc(o.source)}</span><span class="chip src">${esc(o.branch)}</span>${o.salesperson?`<span class="chip src">👤 ${esc(o.salesperson)}</span>`:""}</div>
  ${o.notes?`<div class="meta">📝 ${esc(o.notes)}</div>`:""}
@@ -283,8 +283,8 @@ function openDetail(no){CUR=ORD.find(o=>o.no===no);if(!CUR)return;FE=null;render
 function closeDetail(){$("#detail").classList.add("hidden");document.body.classList.remove("d-open");CUR=null;FE=null;renderList()}
 function renderDetail(){const o=CUR;const st=INIT.statuses,ps=INIT.payments,pm=INIT.payModes;
  $("#detail").innerHTML=`<div class="bar"><button id="dBack">← Back</button><b style="flex:1">${esc(o.no)} · ${esc(o.branch)}</b><span class="msg" style="color:var(--gold);margin:0">Esc to close</span></div><div class="wrap"><div class="dgrid"><div class="dcol">
- ${FE?feForm(o):""}<div class="card${FE?" hidden":""}" id="dInfo">${CE()?`<button id="dEdit" class="ghost">✏️ Edit details</button>`:""}<div class="nm" style="font-size:18px;font-weight:800">${esc(o.name)}</div><div class="meta">${phTxt(o)} · ${esc(o.source)}${o.salesperson?" · 👤 "+esc(o.salesperson):""}</div>
-  <div class="meta">${o.delivery?"🛵 Delivery":"🏬 Pickup"} · <b>${fmtD(o.date)}</b>${o.slot?" · "+esc(o.slot):""}</div><div class="meta">${esc(o.address)}</div>${o.notes?`<div class="meta">📝 ${esc(o.notes)}</div>`:""}
+ ${FE?feForm(o):""}<div class="card${FE?" hidden":""}" id="dInfo">${CE()?`<button id="dEdit" class="ghost">✏️ Edit details</button>`:""}<div class="nm" style="font-size:18px;font-weight:800">${nmH(o)}</div><div class="meta">${phTxt(o)} · ${esc(o.source)}${o.salesperson?" · 👤 "+esc(o.salesperson):""}</div>
+  <div class="meta">${o.delivery?"🛵 Delivery":"🏬 Pickup"} · <b>${dTxt(o)}</b>${o.slot?" · "+esc(o.slot):""}</div><div class="meta">${esc(o.address)}</div>${o.notes?`<div class="meta">📝 ${esc(o.notes)}</div>`:""}
   ${hasPh(o)?`<div class="links"><a class="call" href="tel:${esc(o.phone.replace(/[^\d+]/g,""))}">📞 Call</a><a class="wa" href="https://wa.me/${waNum(o.phone)}" target="_blank" rel="noopener">WhatsApp</a></div>`:""}</div>
  <h3>Items</h3><table><tr><th>Item</th><th>Size</th><th class="n">Qty</th><th class="n">Amount</th></tr>${o.lines.map((l,i)=>`<tr><td>${esc(l.item)}${l.note?`<i class="inote">📝 ${esc(l.note)}</i>`:""}</td><td>${esc(l.unit)}</td><td class="n"><b>${l.qty}</b></td><td class="n">${l.tbc?`<span class="chip tbc">TBC</span>`:inr(l.amount)}</td></tr>${l.tbc&&CE()?`<tr><td colspan="4" style="background:#fff7f7"><div class="grid2"><div><label for="fw${i}">Actual weight (optional)</label><input id="fw${i}" maxlength="30" placeholder="e.g. 620 g"></div><div><label for="fa${i}">Price incl. GST ₹</label><input id="fa${i}" type="number" inputmode="decimal" min="1" placeholder="Line total"></div></div><button class="gold" data-fill="${i}" style="width:100%;margin-top:6px">Save price</button></td></tr>`:""}`).join("")}
   <tr><td colspan="2">Basic (excl. GST)</td><td class="n">${o.subtotal!=null&&!(o.tbc===o.lines.length)?inr2(o.subtotal):"—"}</td></tr><tr><td colspan="2">GST 5%</td><td class="n">${o.gst!=null&&!(o.tbc===o.lines.length)?inr2(o.gst):"—"}</td></tr><tr><th colspan="2">Total incl. GST</th><th class="n">${totTxt(o)}</th></tr></table>${itemTools(o)}${ackBox(o)}</div><div class="dcol dcol2">
@@ -331,15 +331,15 @@ function feStart(){const o=CUR;FE={name:o.name||"",phone:o.phone||"",email:o.ema
  outlet:!o.delivery&&INIT.outlets.includes(o.address)?o.address:INIT.outlets[0],date:o.date||"",slot:o.slot||"",notes:o.notes||""};renderDetail();const n=$("#fName");if(n)n.focus()}
 function feForm(o){const F=FE,ch=o.branch==="Chennai",srcs=INIT.sources.includes(F.source)?INIT.sources:INIT.sources.concat([F.source]);const v=k=>esc(F[k]??"");
  return `<div class="card fe" id="feBox"><h3 style="margin-top:0">✏️ Edit order details</h3><p class="ro">Order ${esc(o.no)} · Branch <b>${esc(o.branch)}</b> (branch cannot be changed)</p>
- <label for="fName">Customer name</label><input id="fName" data-f="name" maxlength="80" required value="${v("name")}">
+ <label for="fName">Customer name</label><input id="fName" data-f="name" maxlength="80" value="${v("name")}">
  <div class="grid2x"><div><label for="fPhone">Phone (optional)</label><input id="fPhone" data-f="phone" type="tel" inputmode="tel" maxlength="16" placeholder="10-digit mobile" value="${v("phone")}"></div>
  <div><label for="fEmail">Customer email (optional)</label><input id="fEmail" data-f="email" type="email" inputmode="email" maxlength="120" value="${v("email")}"></div></div>
- <div class="grid2x"><div><label for="fDate">Required date</label><input id="fDate" data-f="date" type="date" required value="${v("date")}"></div>
+ <div class="grid2x"><div><label for="fDate">Required date</label><input id="fDate" data-f="date" type="date" value="${v("date")}"></div>
  <div><label for="fSlot">Time slot</label><input id="fSlot" data-f="slot" maxlength="30" placeholder="e.g. 5–6 PM" value="${v("slot")}"></div></div>
  <div class="grid2x"><div><label for="fSrc">Order source</label><select id="fSrc" data-f="source">${srcs.map(x=>`<option${x===F.source?" selected":""}>${esc(x)}</option>`).join("")}</select></div>
  <div><label for="fSales">Salesperson</label><input id="fSales" data-f="salesperson" maxlength="40" value="${v("salesperson")}"></div></div>
- <label>Delivery type</label><div class="seg" id="fType"><button type="button" data-ft="delivery" class="${F.delivery?"on":""}">🛵 Home delivery</button><button type="button" data-ft="pickup" class="${F.delivery?"":"on"}"${ch?" disabled title=\"Chennai: delivery only\"":""}>🏬 Pickup</button></div>
- ${F.delivery?`<label for="fAddr">Delivery address</label><textarea id="fAddr" data-f="address" maxlength="300">${v("address")}</textarea>
+ <label>Delivery type</label><div class="seg" id="fType"><button type="button" data-ft="delivery" class="${F.delivery?"on":""}">🛵 Home delivery</button><button type="button" data-ft="pickup" class="${F.delivery?"":"on"}">🏬 Pickup</button></div>
+ ${F.delivery?`<label for="fAddr">Delivery address (optional)</label><textarea id="fAddr" data-f="address" maxlength="300">${v("address")}</textarea>
  <div class="grid2x"><div><label for="fArea">Area</label><input id="fArea" data-f="area" maxlength="80" value="${v("area")}"></div><div><label for="fPin">PIN</label><input id="fPin" data-f="pin" inputmode="numeric" maxlength="6" value="${v("pin")}"></div></div>`
  :`<label for="fOutlet">Pickup outlet</label><select id="fOutlet" data-f="outlet">${INIT.outlets.map(x=>`<option${x===F.outlet?" selected":""}>${esc(x)}</option>`).join("")}</select>`}
  <label for="fNotes">Order notes</label><textarea id="fNotes" data-f="notes" maxlength="500">${v("notes")}</textarea>
@@ -350,14 +350,15 @@ function feDiff(){const o=CUR,F=FE,d={},s=x=>String(x??"").trim();
  const tch=F.delivery!==!!o.delivery;if(tch)d.type=F.delivery?"delivery":"pickup";
  if(F.delivery){if(tch||s(F.address)!==s(o.address))d.address=s(F.address);if(tch||s(F.area)!==s(o.area))d.area=s(F.area);if(tch||s(F.pin)!==s(o.pin))d.pin=s(F.pin);if(d.address!==undefined||d.pin!==undefined||d.area!==undefined)d.type="delivery"}
  else if(tch||F.outlet!==o.address){d.outlet=F.outlet;d.type="pickup"}return d}
-function feCheck(d){const F=FE;if(!String(F.name).trim())return "Enter customer name.";const ph=String(F.phone).replace(/[^\d+]/g,"");if(String(F.phone).trim()&&!/^\+?\d{10,13}$/.test(ph))return "Enter a valid mobile number (10 digits) or leave it blank.";
+function feCheck(d){return ""}   /* no-validation: details never block saving */
+function feCheckOld(d){const F=FE;if(!String(F.name).trim())return "Enter customer name.";const ph=String(F.phone).replace(/[^\d+]/g,"");if(String(F.phone).trim()&&!/^\+?\d{10,13}$/.test(ph))return "Enter a valid mobile number (10 digits) or leave it blank.";
  if(F.email.trim()&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(F.email.trim()))return "Enter a valid email or leave it blank.";
  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(F.date||"");const dt=m&&new Date(+m[1],+m[2]-1,+m[3]);if(!m||dt.getMonth()!==+m[2]-1||dt.getDate()!==+m[3])return "Choose a valid date.";
  if(F.delivery&&!String(F.address).trim())return "Enter the delivery address.";if(F.delivery&&F.pin.trim()&&!/^\d{6}$/.test(F.pin.trim()))return "PIN must be 6 digits.";if(CUR.branch==="Chennai"&&!F.delivery)return "Chennai orders are delivery only.";return ""}
 async function feSave(b){const err=feCheck();const msg=$("#fMsg");if(err){msg.textContent=err;msg.className="msg err";return}const d=feDiff();if(!Object.keys(d).length){FE=null;renderDetail();toast("No changes");return}
- if(d.phone!==undefined)d.phone=d.phone.replace(/[^\d+]/g,"");b.disabled=true;msg.textContent="Saving…";msg.className="msg";const r=await authApi({action:"updateOrder",orderNo:CUR.no,...d});b.disabled=false;
+ b.disabled=true;msg.textContent="Saving…";msg.className="msg";const r=await authApi({action:"updateOrder",orderNo:CUR.no,...d});b.disabled=false;
  if(!r.ok){msg.textContent="Not saved: "+(r.message||r.error);msg.className="msg err";return}
- const o=CUR,F=FE;Object.assign(o,{name:F.name.trim(),phone:F.phone.replace(/[^\d+]/g,""),email:F.email.trim(),source:F.source,salesperson:F.salesperson.trim(),date:F.date,slot:F.slot.trim(),notes:F.notes.trim(),delivery:F.delivery,type:F.delivery?"Home delivery":"Pickup from outlet"});
+ const o=CUR,F=FE;Object.assign(o,{name:F.name.trim(),phone:F.phone.trim(),email:F.email.trim(),source:F.source,salesperson:F.salesperson.trim(),date:F.date,slot:F.slot.trim(),notes:F.notes.trim(),delivery:F.delivery,type:F.delivery?"Home delivery":"Pickup from outlet"});
  if(F.delivery)Object.assign(o,{address:F.address.trim(),area:F.area.trim(),pin:F.pin.trim()});else Object.assign(o,{address:F.outlet,area:"",pin:""});o.handledBy=S.email;FE=null;renderDetail();toast("Details saved ✓")}
 $("#detail").addEventListener("input",e=>{const t=e.target;if(FE&&t.dataset&&t.dataset.f)FE[t.dataset.f]=t.value});
 $("#detail").addEventListener("change",e=>{const t=e.target;if(FE&&t.dataset&&t.dataset.f)FE[t.dataset.f]=t.value});
@@ -402,9 +403,9 @@ function applyBranch(){const b=MB();["#fBranch","#pBranch","#dBranch"].forEach(i
  $("#nBranch").classList.toggle("hidden",!!b);const lb=$("#nBranch").previousElementSibling;if(lb&&lb.tagName==="LABEL")lb.classList.toggle("hidden",!!b);if(b)NEW.branch=b;else if(!INIT.branches||INIT.branches.indexOf(NEW.branch)<0)NEW.branch="Coimbatore"}
 function seg(el,opts,key,cb){$(el).innerHTML=opts.map(([v,t])=>`<button type="button" data-v="${esc(v)}" class="${NEW[key]===v?"on":""}">${esc(t)}</button>`).join("");$(el).onclick=e=>{const b=e.target.closest("button");if(!b)return;NEW[key]=b.dataset.v;$$(el+" button").forEach(x=>x.classList.toggle("on",x===b));cb&&cb()}}
 function setupNew(){seg("#nSource",["WhatsApp","Phone","Walk-in","Other"].map(x=>[x,x]),"source");
- seg("#nBranch",[["Coimbatore","Coimbatore"],["Chennai","Chennai (+10%)"]].filter(x=>!MB()||x[0]===MB()),"branch",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){NEW.type="delivery";setupType()}updNew()});setupType();
- $("#nOutlet").innerHTML=INIT.outlets.map(o=>`<option>${esc(o)}</option>`).join("");$("#nDate").value=INIT.today;$("#nDate").min=INIT.today;renderPick();updNew()}
-function setupType(){seg("#nType",[["pickup","🏬 Pickup at outlet"],["delivery","🛵 Delivery"]],"type",()=>{if(NEW.branch==="Chennai"&&NEW.type==="pickup"){toast("Chennai is delivery only");NEW.type="delivery";setupType()}updNew()});updNew()}
+ seg("#nBranch",[["Coimbatore","Coimbatore"],["Chennai","Chennai (+10%)"]].filter(x=>!MB()||x[0]===MB()),"branch",()=>updNew());setupType();
+ $("#nOutlet").innerHTML=INIT.outlets.map(o=>`<option>${esc(o)}</option>`).join("");$("#nDate").value=INIT.today;renderPick();updNew()}
+function setupType(){seg("#nType",[["pickup","🏬 Pickup at outlet"],["delivery","🛵 Delivery"]],"type",()=>updNew());updNew()}
 function updNew(){$("#pickupBox").classList.toggle("hidden",NEW.type!=="pickup");$("#delBox").classList.toggle("hidden",NEW.type!=="delivery");$("#rateNote").textContent=NEW.branch==="Chennai"?"Chennai rates (Coimbatore × 1.10)":"Coimbatore rates";renderPick();renderCfg();renderCart()}
 const itemPrice=(it,br=NEW.branch)=>it.v?"from "+inr(Math.min(...it.v.map(v=>rateFor(v[1],br))))+"/"+it.u:inr(rateFor(it.p,br))+"/"+it.u;
 /* shared menu search (new order + edit items): case-insensitive, matches anywhere in name/category/spec; INIT.menu = offered (visible) items only */
@@ -456,8 +457,7 @@ $("#cart").addEventListener("focusin",e=>{const t=e.target;if(t.dataset&&t.datas
 $("#nSave").onclick=async()=>{const m=(t,e)=>{$("#nMsg").textContent=t;$("#nMsg").className="msg"+(e?" err":"")};
  const o={action:"createOrder",name:$("#nName").value.trim(),phone:$("#nPhone").value.trim(),source:NEW.source,branch:NEW.branch,type:NEW.type,outlet:$("#nOutlet").value,address:$("#nAddr").value.trim(),area:$("#nArea").value.trim(),pin:$("#nPin").value.trim(),
   city:NEW.branch,date:$("#nDate").value,slot:$("#nSlot").value.trim(),notes:$("#nNotes").value.trim(),email:$("#nEmail").value.trim(),salesperson:$("#nSales").value.trim(),status:$("#nStatus").value,lines:NEW.cart.map(l=>({name:l.name,mode:l.mode,grams:l.grams,qty:l.qty,size:l.size,note:cleanNote(l.note)}))};
- if(!o.name)return m("Enter customer name.",1);const ph=o.phone.replace(/[^\d+]/g,"");if(o.phone&&!/^\+?\d{10,13}$/.test(ph))return m("Enter a valid mobile number (10 digits) or leave it blank.",1);if(o.type==="delivery"&&!o.address)return m("Enter the delivery address.",1);
- if(o.pin&&!/^\d{6}$/.test(o.pin))return m("PIN must be 6 digits.",1);if(!o.date)return m("Choose the date.",1);if(!o.lines.length)return m("Add at least one item.",1);
+ if(!o.lines.length)return m("Add at least one item.",1);   /* only check that blocks saving; all other fields optional, saved as entered */
  $("#nSave").disabled=true;m("Saving…");const r=await authApi(o);$("#nSave").disabled=false;
  if(!r.ok)return m("Not saved: "+r.error,1);m("Saved as "+r.orderNo+" · "+(r.tbc&&r.tbc===o.lines.length?"Price TBC":inr(r.total)+" incl. GST"));toast("Order "+r.orderNo+" saved");
  NEW.cart=[];NEW.edit=null;NEW.sel=null;renderCfg();["#nName","#nPhone","#nAddr","#nArea","#nPin","#nSlot","#nNotes","#nEmail"].forEach(s=>$(s).value="");renderCart();await load()};
@@ -471,7 +471,7 @@ async function renderProd(){if(!INIT)return;const d=$("#pDate").value||INIT.toda
 function renderDel(){if(!INIT)return;const d=$("#dDate").value||INIT.today,b=$("#dBranch").value;const list=ORD.filter(o=>o.date===d&&o.status!=="Cancelled"&&(!b||o.branch===b));$("#dsum").innerHTML=sumBox(list);
  const g={};list.forEach(o=>{const k=o.delivery?"🛵 "+(o.pin||"No PIN")+(o.area?" · "+o.area:""):"🏬 Pickup – "+o.address;(g[k]=g[k]||[]).push(o)});
  const keys=Object.keys(g).sort((a,b)=>(a[0]==="🏬")-(b[0]==="🏬")||a.localeCompare(b));
- $("#dlist").innerHTML=keys.length?keys.map(k=>`<div class="card grp"><h3 style="margin-top:0">${esc(k)} (${g[k].length})</h3>${g[k].sort((a,b)=>(a.slot||"").localeCompare(b.slot||"")).map(o=>`<div class="dl"><b>${esc(o.no)}</b> · ${esc(o.name)} · ${hasPh(o)?esc(o.phone):"— no phone"}${o.slot?" · ⏰ "+esc(o.slot):""}<br>${o.delivery?esc(o.address)+"<br>":""}<small>${esc(o.lines.map(l=>l.item+" "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?"×"+l.qty:""):l.qty+" "+l.unit)).join(", "))}</small><br><span class="chip ${sCls(o.status)}">${esc(o.status)}</span><span class="chip ${pCls(o.payment)}">${esc(o.payment)}</span> <b>${totTxt(o)}</b>${o.payment!=="Paid"&&o.amountReceived?" (received "+inr(o.amountReceived)+")":""}</div>`).join("")}</div>`).join(""):'<p class="msg">No deliveries or pickups for this date.</p>'}
+ $("#dlist").innerHTML=keys.length?keys.map(k=>`<div class="card grp"><h3 style="margin-top:0">${esc(k)} (${g[k].length})</h3>${g[k].sort((a,b)=>(a.slot||"").localeCompare(b.slot||"")).map(o=>`<div class="dl"><b>${esc(o.no)}</b> · ${nmH(o)} · ${String(o.phone||"").trim()?esc(o.phone):"— no phone"}${o.slot?" · ⏰ "+esc(o.slot):""}<br>${o.delivery?esc(o.address)+"<br>":""}<small>${esc(o.lines.map(l=>l.item+" "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?"×"+l.qty:""):l.qty+" "+l.unit)).join(", "))}</small><br><span class="chip ${sCls(o.status)}">${esc(o.status)}</span><span class="chip ${pCls(o.payment)}">${esc(o.payment)}</span> <b>${totTxt(o)}</b>${o.payment!=="Paid"&&o.amountReceived?" (received "+inr(o.amountReceived)+")":""}</div>`).join("")}</div>`).join(""):'<p class="msg">No deliveries or pickups for this date.</p>'}
 
 /* ---------- desktop (>=900px): two-column new order, keyboard-first item entry, master-detail orders ---------- */
 try{(function(){const MQ=window.matchMedia("(min-width:900px)"),isDesk=()=>MQ.matches;let HL=-1;
@@ -497,7 +497,7 @@ try{(function(){const MQ=window.matchMedia("(min-width:900px)"),isDesk=()=>MQ.ma
  const ack=o=>o.ackChannel?'<span class="chip p-Paid">✓ '+esc(o.ackChannel)+"</span>":o.status==="Cancelled"?"—":'<span class="chip unack" style="background:#e3f2fd;color:#0d47a1">No</span>';
  const sumIt=o=>o.lines.map(l=>l.item+" "+(gramsOf(l.unit)!==null?l.unit+(l.qty>1?"×"+l.qty:""):l.qty+" "+l.unit.replace(/\s*\(price TBC\)/i,""))+(l.tbc?" (TBC)":"")).join(", ");
  function deskTable(){const L=filtered();if(!L.length)return;const sel=CUR&&!$("#detail").classList.contains("hidden")?CUR.no:"";
-  $("#olist").innerHTML=`<table class="otab"><thead><tr><th>Order</th><th>Date</th><th>Name</th><th>Phone</th><th>Items</th><th class="n">Total</th><th>Status</th><th>Payment</th><th>Ack</th></tr></thead><tbody>${L.map(o=>`<tr class="oc${o.no===sel?" sel":""}" data-o="${esc(o.no)}" tabindex="0"><td><b class="ono">${esc(o.no)}</b><br><small>${esc(o.branch)}</small></td><td>${fmtD(o.date)}${o.slot?"<br><small>"+esc(o.slot)+"</small>":""}<br><small>${o.delivery?"🛵":"🏬"} ${esc(o.source)}</small></td><td><b>${esc(o.name)}</b></td><td>${hasPh(o)?esc(o.phone):'<small class="nophone">— no phone</small>'}</td><td class="it">${esc(sumIt(o))}</td><td class="n"><b>${totTxt(o)}</b></td><td><span class="chip ${sCls(o.status)}">${esc(o.status)}</span></td><td><span class="chip ${pCls(o.payment)}">${esc(o.payment)}</span></td><td>${ack(o)}</td></tr>`).join("")}</tbody></table>`}
+  $("#olist").innerHTML=`<table class="otab"><thead><tr><th>Order</th><th>Date</th><th>Name</th><th>Phone</th><th>Items</th><th class="n">Total</th><th>Status</th><th>Payment</th><th>Ack</th></tr></thead><tbody>${L.map(o=>`<tr class="oc${o.no===sel?" sel":""}" data-o="${esc(o.no)}" tabindex="0"><td><b class="ono">${esc(o.no)}</b><br><small>${esc(o.branch)}</small></td><td>${dTxt(o)}${o.slot?"<br><small>"+esc(o.slot)+"</small>":""}<br><small>${o.delivery?"🛵":"🏬"} ${esc(o.source)}</small></td><td><b>${nmH(o)}</b></td><td>${String(o.phone||"").trim()?esc(o.phone):'<small class="nophone">— no phone</small>'}</td><td class="it">${esc(sumIt(o))}</td><td class="n"><b>${totTxt(o)}</b></td><td><span class="chip ${sCls(o.status)}">${esc(o.status)}</span></td><td><span class="chip ${pCls(o.payment)}">${esc(o.payment)}</span></td><td>${ack(o)}</td></tr>`).join("")}</tbody></table>`}
  const _rl=renderList;renderList=function(){_rl();if(isDesk())try{deskTable()}catch(err){_rl()}};
  $("#olist").addEventListener("keydown",e=>{if(isDesk()&&e.key==="Enter"&&e.target.dataset&&e.target.dataset.o){e.preventDefault();openDetail(e.target.dataset.o)}});
  const mdSync=()=>document.body.classList.toggle("md-open",isDesk()&&!$("#detail").classList.contains("hidden"));
